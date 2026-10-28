@@ -13,6 +13,7 @@ export default defineConfig(({ command, mode }) => {
   }
 
   return {
+    base: env.VITE_BASE_PATH || '/',
     plugins: [vue(), contentPlugin()],
     resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
     server: { port: 5173, strictPort: true },

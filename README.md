@@ -53,3 +53,9 @@ npm run preview
 - [实施进度](docs/implementation-plan.md)
 
 src/app 负责装配，pages 负责编排，modules 持有业务，shared 提供公共能力，data 实现具体服务。工程不会把旧概念稿的单文件脚本整体搬进 Vue。
+
+## GitHub Pages 发布
+
+线上地址：https://7alpaca7.github.io/signal-blog/ 。向 main 推送后，Deploy GitHub Pages 工作流检查并自动构建发布；也可在 Actions 手动触发。
+
+`npm run build:pages` 使用 `/signal-blog/` 基础路径，为归档及每篇已发布文章生成静态入口，支持直接打开和刷新。它们是 Vue 应用入口，尚不是正文预渲染。新增 Markdown 后需要推送并等待部署成功。当前会话点赞、评论未接入及禁止索引的展示阶段边界保持明确。

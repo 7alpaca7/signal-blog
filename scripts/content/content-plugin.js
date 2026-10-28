@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { parsePost } from './parse-post.js';
+import { writeStaticEntries } from './static-entries.js';
 
 const manifestId = 'virtual:blog-content';
 const detailPrefix = 'virtual:blog-post/';
@@ -13,6 +14,8 @@ const detailPrefix = 'virtual:blog-post/';
  */
 export function contentPlugin() {
   let directory = '';
+  let pagesBuild = false;
+  let outputDirectory = '';
   function readPosts() {
     const files = fs
       .readdirSync(directory, { recursive: true })
@@ -35,6 +38,8 @@ export function contentPlugin() {
     name: 'local-markdown-content',
     configResolved(config) {
       directory = path.join(config.root, 'content/posts');
+      pagesBuild = config.command === 'build' && config.mode === 'pages';
+      outputDirectory = path.resolve(config.root, config.build?.outDir ?? 'dist');
     },
     buildStart() {
       readPosts();
@@ -65,6 +70,13 @@ export function contentPlugin() {
         if (!post) throw new Error(`文章不存在：${slug}`);
         return `export default ${JSON.stringify(post.article)};`;
       }
+    },
+    closeBundle() {
+      if (pagesBuild)
+        writeStaticEntries(
+          outputDirectory,
+          readPosts().map((post) => post.article.slug),
+        );
     },
     configureServer(server) {
       server.watcher.add(directory);

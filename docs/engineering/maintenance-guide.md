@@ -89,3 +89,7 @@
 ## 当前博客内容
 
 content/posts/ 已移除原五篇设计测试文章，替换为工程搭建、角色动效、Markdown 内容管理和性能加载四篇开发日志。发布时间为本次日志整理入库的时间；没有伪造旧修订，所以贡献表只显示明确发布记录。旧文章 URL 显示不存在，浏览器回归使用新的日志路径。src/data/fixtures 仍为隔离的演示/测试素材，不作为当前内容源。
+
+## GitHub Pages
+
+`.github/workflows/pages.yml` 在 main 推送或手动触发时检查、构建并部署 dist。`.env.pages` 设置仓库基础路径；仓库改名需要同步这里的 VITE_BASE_PATH。`scripts/content/static-entries.js` 为归档与发布文章生成真实入口，解决 Pages 不支持 history rewrite 的直达/刷新问题；404.html 用于不存在页面。未实现正文预渲染，noindex 和互动边界仍在。
