@@ -1,0 +1,13 @@
+:root {
+  --color-bg: #101211;
+  --color-surface: #191d17;
+  --color-text: #f0f0e8;
+  --color-muted: #a1a69d;
+  --color-acid: #d9ff61;
+  --color-orange: #ff8a48;
+  --color-line: #353b30;
+  --font-body: Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'Courier New', monospace;
+  --content-width: 1160px;
+  --page-gutter: clamp(20px, 5vw, 70px);
+}
