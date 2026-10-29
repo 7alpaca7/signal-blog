@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { parsePost } from './parse-post.js';
+import { readPngSize } from './image-assets.js';
 import { writeStaticEntries } from './static-entries.js';
 
 const manifestId = 'virtual:blog-content';
@@ -14,6 +15,8 @@ const detailPrefix = 'virtual:blog-post/';
  */
 export function contentPlugin() {
   let directory = '';
+  let base = '/';
+  let publicDirectory = '';
   let pagesBuild = false;
   let outputDirectory = '';
   function readPosts() {
@@ -22,7 +25,10 @@ export function contentPlugin() {
       .filter((file) => typeof file === 'string' && file.endsWith('.md'));
     const posts = files.map((file) => {
       try {
-        return parsePost(fs.readFileSync(path.join(directory, file), 'utf8'), path.basename(file));
+        return parsePost(fs.readFileSync(path.join(directory, file), 'utf8'), path.basename(file), {
+          base,
+          imageSize: (source) => readPngSize(publicDirectory, source),
+        });
       } catch (error) {
         throw new Error(`Markdown 文章 ${file}：${error.message}`, { cause: error });
       }
@@ -38,6 +44,8 @@ export function contentPlugin() {
     name: 'local-markdown-content',
     configResolved(config) {
       directory = path.join(config.root, 'content/posts');
+      base = config.base ?? '/';
+      publicDirectory = config.publicDir || path.join(config.root, 'public');
       pagesBuild = config.command === 'build' && config.mode === 'pages';
       outputDirectory = path.resolve(config.root, config.build?.outDir ?? 'dist');
     },

@@ -1,8 +1,7 @@
-import MarkdownIt from 'markdown-it';
 import sanitizeHtml from 'sanitize-html';
 import { parse } from 'yaml';
 
-const markdown = new MarkdownIt({ html: false, linkify: true, typographer: false });
+import { createMarkdownRenderer } from './markdown-renderer.js';
 
 /** 验证带时区时间，避免构建机器时区改变文章发布日。 */
 function timestamp(value, field) {
@@ -20,8 +19,10 @@ function timestamp(value, field) {
  * 构建边界：解析文章、校验元信息并生成安全 HTML；错误由插件补充文件路径。
  * @param {string} source Markdown 原文。
  * @param {string} filename 文件名（默认作为稳定 slug）。
+ * @param {{base?: string, imageSize?: (source: string) => {width: number, height: number}|undefined}} [options] 部署路径与构建时图片尺寸读取器。
  */
-export function parsePost(source, filename) {
+export function parsePost(source, filename, { base = '/', imageSize = () => undefined } = {}) {
+  const { markdown, restoreMath } = createMarkdownRenderer();
   const match = source
     .replace(/^\uFEFF/, '')
     .match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/);
@@ -87,7 +88,7 @@ export function parsePost(source, filename) {
     token.attrSet('id', id);
     sections.push({ id, title, paragraphs: [] });
   });
-  const html = sanitizeHtml(markdown.renderer.render(tokens, markdown.options, {}), {
+  const sanitized = sanitizeHtml(markdown.renderer.render(tokens, markdown.options, {}), {
     allowedTags: [...sanitizeHtml.defaults.allowedTags, 'img'],
     allowedAttributes: {
       ...sanitizeHtml.defaults.allowedAttributes,
@@ -100,9 +101,25 @@ export function parsePost(source, filename) {
     allowProtocolRelative: false,
     transformTags: {
       a: (tagName, attribs) => ({ tagName, attribs: { ...attribs, rel: 'noopener noreferrer' } }),
-      img: (tagName, attribs) => ({ tagName, attribs: { ...attribs, loading: 'lazy' } }),
+      img: (tagName, attribs) => {
+        const size = imageSize(attribs.src);
+        const source =
+          attribs.src.startsWith('/') && !attribs.src.startsWith('//')
+            ? `${base.replace(/\/$/, '')}${attribs.src}`
+            : attribs.src;
+        return {
+          tagName,
+          attribs: {
+            ...attribs,
+            src: source,
+            loading: 'lazy',
+            ...(size ? { width: String(size.width), height: String(size.height) } : {}),
+          },
+        };
+      },
     },
   });
+  const html = restoreMath(sanitized);
   const article = {
     id: slug,
     slug,

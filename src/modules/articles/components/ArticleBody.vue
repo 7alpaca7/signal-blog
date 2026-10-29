@@ -1,4 +1,5 @@
 <script setup>
+import 'katex/dist/katex.min.css';
 defineProps({
   article: {
     type: /** @type {import('vue').PropType<import('../model/article-contracts.js').Article>} */ (
@@ -91,5 +92,14 @@ defineProps({
 .markdown-body :deep(td) {
   border: 1px solid var(--color-line);
   padding: 8px 14px;
+}
+.markdown-body :deep(.katex-display) {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 10px;
+}
+.markdown-body :deep(.katex) {
+  font-size: 1.05em;
 }
 </style>

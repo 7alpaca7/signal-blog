@@ -93,3 +93,7 @@ content/posts/ 已移除原五篇设计测试文章，替换为工程搭建、�
 ## GitHub Pages
 
 `.github/workflows/pages.yml` 在 main 推送或手动触发时检查、构建并部署 dist。`.env.pages` 设置仓库基础路径；仓库改名需要同步这里的 VITE_BASE_PATH。`scripts/content/static-entries.js` 为归档与发布文章生成真实入口，解决 Pages 不支持 history rewrite 的直达/刷新问题；404.html 用于不存在页面。未实现正文预渲染，noindex 和互动边界仍在。
+
+## 文献笔记与公式图片
+
+DenoDet 笔记在 content/posts/denodet-attention-feature-denoising.md，7 张配图位于 public/images/denodet/，原笔记和原图来源说明保留。scripts/content/markdown-renderer.js 在构建时生成 KaTeX 片段，正文净化后恢复可信输出（trust:false），不向客户端打包公式执行库。parse-post 接受部署 base 和图片尺寸读取函数，image-assets.js 读取本地 PNG 元信息；图片懒加载并预留比例。ArticleBody 引入自托管公式样式，宽公式在自身范围横向滚动。

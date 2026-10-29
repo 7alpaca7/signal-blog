@@ -48,3 +48,20 @@ describe('Markdown 内容边界', () => {
     );
   });
 });
+
+it('构建时渲染公式并为本地图片应用 Pages 前缀和固有尺寸', () => {
+  const { article } = parsePost(
+    `${header}行内 $y=a(x)x$。\n\n$$\n\\theta=(1-a)|x|\n$$\n\n![配图](/images/example.png)`,
+    'math.md',
+    {
+      base: '/signal-blog/',
+      imageSize: () => ({ width: 1200, height: 600 }),
+    },
+  );
+  expect(article.html).toContain('class="katex"');
+  expect(article.html).toContain('<math');
+  expect(article.html).toContain('src="/signal-blog/images/example.png"');
+  expect(article.html).toContain('width="1200"');
+  expect(article.html).toContain('height="600"');
+  expect(article.html).not.toContain('MATH_');
+});
