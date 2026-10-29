@@ -45,6 +45,9 @@ const removeBeforeHook = router.beforeEach((to, from) => {
 const removeAfterHook = router.afterEach((_to, _from, failure) => {
   if (failure) transitioning.value = false;
 });
+const removeErrorHook = router.onError(() => {
+  transitioning.value = false;
+});
 watch(
   () => motion.active,
   (active) => {
@@ -54,6 +57,7 @@ watch(
 onScopeDispose(() => {
   removeBeforeHook();
   removeAfterHook();
+  removeErrorHook();
 });
 </script>
 

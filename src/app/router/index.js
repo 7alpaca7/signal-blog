@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+import { installNavigationRecovery } from './recover-navigation.js';
 import { routes } from './routes.js';
 
 export const router = createRouter({
@@ -17,3 +18,5 @@ export const router = createRouter({
 router.afterEach((to) => {
   document.title = `${to.meta.title || '记录与实验'} · SIGNAL`;
 });
+
+installNavigationRecovery(router);
