@@ -159,3 +159,12 @@ html:has([data-motion='off']) {
     opacity: 1;
   }
 }
+
+/* 像素阅读条出现时只隐藏根滚动条外观，仍由原生页面承担滚动。
+   使用实际控件是否存在作为条件，加载失败、离开详情页时自动恢复。 */
+html:has(.reading-rail) {
+  scrollbar-width: none;
+}
+html:has(.reading-rail)::-webkit-scrollbar {
+  display: none;
+}

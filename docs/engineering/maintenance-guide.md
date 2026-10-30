@@ -101,3 +101,5 @@ DenoDet 笔记在 content/posts/denodet-attention-feature-denoising.md，7 张�
 站内导航资源失效由 `src/app/router/recover-navigation.js` 处理：真实导航的动态模块/CSS 加载失败时，重新打开目标地址以取得最新构建；预取失败不刷新。同一目标 30 秒内最多恢复一次，sessionStorage 不可用时不自动重载，避免循环。App 的 onError 同时释放转场状态。回归用例覆盖 DenoDet 返回首页、归档、历史导航，以及模拟旧路由资源失效。
 
 RF-DETR 笔记位于 content/posts/rf-detr-weight-sharing-nas.md，10 张配图位于 public/images/rfdetr/。导入时将原始 HTML 锚点转换为 Markdown 显式标题锚点，并替换相对图片路径；论文 PDF 链接指向所读 arXiv 版本。ArticlePage 的正文网格子项 min-width:0，避免手机端宽公式或表格撑大整页。
+
+详情页的 ReadingScrollbar 出现时，base.css 通过 html:has(.reading-rail) 隐藏根原生滚动条外观，不设置 overflow:hidden。原生滚轮、触摸、键盘与历史位置恢复保持有效；离开详情或未加载出阅读条时自动恢复原生条。正文公式、表格的局部横向滚动条不受影响。
