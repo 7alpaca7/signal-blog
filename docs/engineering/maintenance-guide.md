@@ -99,3 +99,5 @@ content/posts/ 已移除原五篇设计测试文章，替换为工程搭建、�
 DenoDet 笔记在 content/posts/denodet-attention-feature-denoising.md，7 张配图位于 public/images/denodet/，原笔记和原图来源说明保留。scripts/content/markdown-renderer.js 在构建时生成 KaTeX 片段，正文净化后恢复可信输出（trust:false），不向客户端打包公式执行库。parse-post 接受部署 base 和图片尺寸读取函数，image-assets.js 读取本地 PNG 元信息；图片懒加载并预留比例。ArticleBody 引入自托管公式样式，宽公式在自身范围横向滚动。
 
 站内导航资源失效由 `src/app/router/recover-navigation.js` 处理：真实导航的动态模块/CSS 加载失败时，重新打开目标地址以取得最新构建；预取失败不刷新。同一目标 30 秒内最多恢复一次，sessionStorage 不可用时不自动重载，避免循环。App 的 onError 同时释放转场状态。回归用例覆盖 DenoDet 返回首页、归档、历史导航，以及模拟旧路由资源失效。
+
+RF-DETR 笔记位于 content/posts/rf-detr-weight-sharing-nas.md，10 张配图位于 public/images/rfdetr/。导入时将原始 HTML 锚点转换为 Markdown 显式标题锚点，并替换相对图片路径；论文 PDF 链接指向所读 arXiv 版本。ArticlePage 的正文网格子项 min-width:0，避免手机端宽公式或表格撑大整页。

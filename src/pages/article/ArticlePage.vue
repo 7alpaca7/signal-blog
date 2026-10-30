@@ -185,6 +185,8 @@ nav a:hover {
 }
 
 .article-layout > article {
+  /* 宽公式和表格在正文内部滚动，不撑大移动端网格的最小宽度。 */
+  min-width: 0;
   background: color-mix(in srgb, var(--color-bg) 95%, transparent);
   padding: 16px;
   margin-inline: -16px;
