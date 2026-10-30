@@ -36,8 +36,8 @@ const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
         >
       </div>
     </div>
-    <div class="legend">
-      <span>少</span
+    <div class="legend" aria-label="文档变更次数：无、1 次、2 次、3 次、4 次及以上">
+      <span>无</span
       ><i v-for="level in [0, 1, 2, 3, 4]" :key="level" :class="`level-${level}`" /><span>多</span>
     </div>
   </div>
@@ -95,18 +95,20 @@ const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
   cursor: default;
 }
 .level-0 {
-  background: #22271f;
+  background: #20241f;
+  box-shadow: inset 0 0 0 1px #343b30;
 }
 .level-1 {
-  background: #42572b;
-  color: #e0edc9;
+  /* 最低提交档也使用明确的实色，避免与空白日混淆。 */
+  background: #789c41;
+  color: #101211;
 }
 .level-2 {
-  background: #718d3b;
+  background: #a1bd43;
   color: #101211;
 }
 .level-3 {
-  background: #abc849;
+  background: #c0da50;
   color: #101211;
 }
 .level-4 {

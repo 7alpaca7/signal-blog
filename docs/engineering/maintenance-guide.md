@@ -103,3 +103,5 @@ DenoDet 笔记在 content/posts/denodet-attention-feature-denoising.md，7 张�
 RF-DETR 笔记位于 content/posts/rf-detr-weight-sharing-nas.md，10 张配图位于 public/images/rfdetr/。导入时将原始 HTML 锚点转换为 Markdown 显式标题锚点，并替换相对图片路径；论文 PDF 链接指向所读 arXiv 版本。ArticlePage 的正文网格子项 min-width:0，避免手机端宽公式或表格撑大整页。
 
 详情页的 ReadingScrollbar 出现时，base.css 通过 html:has(.reading-rail) 隐藏根原生滚动条外观，不设置 overflow:hidden。原生滚轮、触摸、键盘与历史位置恢复保持有效；离开详情或未加载出阅读条时自动恢复原生条。正文公式、表格的局部横向滚动条不受影响。
+
+创作足迹色阶在 ActivityCalendar.vue：无记录为带细边框的深灰，1–4+ 次为明亮绿至酸黄；最低非零档采用深色数字以维持文字辨识度，图例从“无”到“多”，与日期格共用 level 样式。
