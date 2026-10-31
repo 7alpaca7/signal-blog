@@ -9,7 +9,12 @@ import path from 'node:path';
  */
 export function writeStaticEntries(outputDirectory, slugs) {
   const html = fs.readFileSync(path.join(outputDirectory, 'index.html'), 'utf8');
-  for (const route of ['articles', ...slugs.map((slug) => `articles/${slug}`)]) {
+  for (const route of [
+    'resources',
+    'resources/signal-source',
+    'articles',
+    ...slugs.map((slug) => `articles/${slug}`),
+  ]) {
     const directory = path.join(outputDirectory, route);
     fs.mkdirSync(directory, { recursive: true });
     fs.writeFileSync(path.join(directory, 'index.html'), html);

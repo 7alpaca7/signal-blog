@@ -1,5 +1,6 @@
 /** 所有动态数值集中于此。时间为秒，位移为 CSS 像素。 */
 export const MOTION = Object.freeze({
+  chest: { interval: 11, cycle: 3.6, stiffness: 75, damping: 13, mass: 1.1 },
   maxDelta: 0.05,
   frameTolerance: 0.0005,
   hover: 0.23,

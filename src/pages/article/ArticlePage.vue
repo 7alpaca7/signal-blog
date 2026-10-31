@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 
+import { RelatedResources } from '@/modules/resources/index.js';
 import { ArticleBody, useArticle } from '@/modules/articles/index.js';
 import { ArticleLike } from '@/modules/engagement/index.js';
 import { ReadingScrollbar, useReadingPosition } from '@/modules/reader/index.js';
@@ -43,6 +44,7 @@ const { data: article, status, error, reload } = useArticle(() => slug.value);
         <p class="meta">{{ article.publishedAt }} · {{ article.readingMinutes }} MIN READ</p>
         <p class="lead">{{ article.excerpt }}</p>
         <ArticleBody :article="article" />
+        <RelatedResources :slug="slug" />
         <ArticleLike :article-id="article.id" />
       </article>
       <aside>

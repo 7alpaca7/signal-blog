@@ -1,0 +1,18 @@
+{
+  "id": "signal-source",
+  "name": "SIGNAL 博客源码",
+  "category": "开发资源",
+  "description": "这座像素博客的 Vue 3 工程。包含角色绘制、动效系统、Markdown 内容管线与 GitHub Pages 部署配置。",
+  "version": "main · 持续更新",
+  "platform": "跨平台 / Node.js",
+  "format": "ZIP",
+  "url": "https://github.com/7alpaca7/signal-blog/archive/refs/heads/main.zip",
+  "source": "https://github.com/7alpaca7/signal-blog",
+  "instructions": "解压后按仓库 README 准备 Node.js 环境，运行 npm ci 安装依赖，再运行 npm run dev。该文件来自 main 分支，内容会随提交更新；体积和校验值不固定。第三方依赖的许可证以各自声明为准。",
+  "articles": [
+    "architecture-and-project-setup",
+    "markdown-content-workflow",
+    "brand-mascot-and-motion",
+    "performance-and-loading"
+  ]
+}

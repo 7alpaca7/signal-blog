@@ -18,7 +18,8 @@ const motion = useMotionPreference();
     >
     <nav aria-label="主导航">
       <RouterLink to="/" exact-active-class="is-active">首页</RouterLink
-      ><RouterLink to="/articles" active-class="is-active">全部记录</RouterLink>
+      ><RouterLink to="/articles" active-class="is-active">全部记录</RouterLink
+      ><RouterLink to="/resources" active-class="is-active">资源仓库</RouterLink>
     </nav>
     <button
       class="motion-toggle"

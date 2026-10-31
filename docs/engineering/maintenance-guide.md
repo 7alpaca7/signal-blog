@@ -105,3 +105,5 @@ RF-DETR 笔记位于 content/posts/rf-detr-weight-sharing-nas.md，10 张配图�
 详情页的 ReadingScrollbar 出现时，base.css 通过 html:has(.reading-rail) 隐藏根原生滚动条外观，不设置 overflow:hidden。原生滚轮、触摸、键盘与历史位置恢复保持有效；离开详情或未加载出阅读条时自动恢复原生条。正文公式、表格的局部横向滚动条不受影响。
 
 创作足迹色阶在 ActivityCalendar.vue：无记录为带细边框的深灰，1–4+ 次为明亮绿至酸黄；最低非零档采用深色数字以维持文字辨识度，图例从“无”到“多”，与日期格共用 level 样式。
+
+资源仓库入口为 /resources，详情为 /resources/:id；资源元数据位于 content/resources/，由 data/resources/catalog.js 显式装配并经 RESOURCE_CATALOG 注入。当前仅收录真实 SIGNAL 源码包，未上传的软件或镜像分类显示空态。articles 字段控制文章尾部关联；新增资源同时更新 static-entries.js 的 Pages 入口。TreasureChest 使用 SVG 与共享 RAF 弹簧，参数在 Motion Tokens chest，独立于小黄脸；关闭动效时点击静态开合。
