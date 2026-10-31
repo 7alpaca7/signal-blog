@@ -109,3 +109,5 @@ RF-DETR 笔记位于 content/posts/rf-detr-weight-sharing-nas.md，10 张配图�
 资源仓库入口为 /resources，详情为 /resources/:id；资源元数据位于 content/resources/，由 data/resources/catalog.js 显式装配并经 RESOURCE_CATALOG 注入。当前仅收录真实 SIGNAL 源码包，未上传的软件或镜像分类显示空态。articles 字段控制文章尾部关联；新增资源同时更新 static-entries.js 的 Pages 入口。TreasureChest 使用 SVG 与共享 RAF 弹簧，参数在 Motion Tokens chest，独立于小黄脸；关闭动效时点击静态开合。
 
 资源仓库现使用独立 ExplorerMascot：探险帽、挥手与招呼星光，不复用饮料动作。宝箱待机分批摇晃与顶盖，只有点击开启光束；两者计时独立，参数位于 MOTION.explorer/chest，共享可见性帧调度与减少动效设置。
+
+宝箱视觉为原创 SVG 三分之四透视、分层木纹与金属包边。开箱光使用渐变光晕、摆动光束、箱口亮边和预建的 12 个上升星粒；逐帧只修改 SVG 属性，不创建节点。参数统一在 MOTION.chest，关闭动效显示静态光效。

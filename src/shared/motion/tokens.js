@@ -2,6 +2,13 @@
 export const MOTION = Object.freeze({
   explorer: { interval: 7, wave: 2.1, waveSpeed: 11, waveAngle: 16, blink: 4 },
   chest: {
+    lidLift: 38,
+    lidAngle: 28,
+    raySpeed: 1.5,
+    rayAngle: 7,
+    sparkSpeed: 0.45,
+    sparkCount: 12,
+    sparkRise: 115,
     interval: 4.8,
     shake: 1.25,
     shakeSpeed: 23,
