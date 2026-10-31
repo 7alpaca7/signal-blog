@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 
-import PixelMascot from '@/shared/brand/PixelMascot.vue';
+import ExplorerMascot from './ExplorerMascot.vue';
 import { MOTION } from '@/shared/motion/tokens.js';
 import { useMotionScope } from '@/shared/motion/use-motion-scope.js';
 import { useMotionPreference } from '@/shared/motion/use-motion-preference.js';
@@ -9,6 +9,7 @@ import { useMotionPreference } from '@/shared/motion/use-motion-preference.js';
 const root = ref(/** @type {HTMLElement|null} */ (null));
 const lid = ref(/** @type {SVGGElement|null} */ (null));
 const glow = ref(/** @type {SVGGElement|null} */ (null));
+const chestBody = ref(/** @type {SVGSVGElement|null} */ (null));
 const motion = useMotionPreference();
 const opened = ref(false);
 let elapsed = 0;
@@ -40,17 +41,22 @@ onMounted(() => paint(0));
 // 高频弹簧状态在闭包内；共享调度器负责离屏/后台暂停及卸载退订。
 useMotionScope(root, (delta) => {
   elapsed += delta;
-  if (elapsed >= MOTION.chest.interval && action <= 0) {
-    elapsed = 0;
-    action = MOTION.chest.cycle;
-    opened.value = true;
-  }
+  // 待机只摇晃与顶盖，不自动开启发光；点击才揭示箱内资源。
+  const phase = elapsed % MOTION.chest.interval;
+  const shaking = action <= 0 && phase < MOTION.chest.shake;
+  const envelope = shaking ? Math.sin((phase / MOTION.chest.shake) * Math.PI) : 0;
+  const tilt = Math.sin(elapsed * MOTION.chest.shakeSpeed) * MOTION.chest.shakeAngle * envelope;
+  chestBody.value?.style.setProperty('transform', `rotate(${tilt}deg)`);
   action = Math.max(0, action - delta);
   const target = action > MOTION.chest.cycle * 0.3 ? 1 : hovering.value ? 0.18 : 0;
   const { stiffness, damping, mass } = MOTION.chest;
   velocity += (((target - position) * stiffness - velocity * damping) / mass) * delta;
   position += velocity * delta;
   paint();
+  if (action <= 0) {
+    glow.value?.setAttribute('opacity', '0');
+    if (shaking) lid.value?.setAttribute('transform', `translate(0 ${-Math.abs(tilt) * 1.2})`);
+  }
   if (action === 0 && opened.value) opened.value = false;
 });
 </script>
@@ -59,7 +65,7 @@ useMotionScope(root, (delta) => {
   <div class="treasure-scene">
     <div class="scene-grid" aria-hidden="true" />
     <span class="coordinate">VAULT_01 / KEEP THE GOOD STUFF</span>
-    <div class="vault-mascot"><PixelMascot beverage="fanta" reaction="affection" /></div>
+    <div class="vault-mascot"><ExplorerMascot /></div>
     <button
       ref="root"
       class="chest"
@@ -73,6 +79,7 @@ useMotionScope(root, (delta) => {
       @blur="hovering = false"
     >
       <svg
+        ref="chestBody"
         viewBox="0 0 240 200"
         role="img"
         aria-label="金属包角的像素木宝箱"
@@ -83,7 +90,7 @@ useMotionScope(root, (delta) => {
           <path
             d="M65 122 L43 24 L79 50 L111 17 L145 47 L186 26 L175 128Z"
             fill="#d9ff61"
-            opacity=".13"
+            opacity=".42"
           />
           <path
             d="M62 53h5v-5h5v5h5v5h-5v5h-5v-5h-5z M168 35h5v-5h5v5h5v5h-5v5h-5v-5h-5z"
@@ -155,12 +162,13 @@ useMotionScope(root, (delta) => {
   display: block;
   width: 100%;
   overflow: visible;
+  transform-origin: 50% 88%;
 }
 .vault-mascot {
   position: absolute;
   left: 3%;
-  bottom: 80px;
-  transform: scale(0.67);
+  bottom: 75px;
+  transform: scale(1);
   transform-origin: bottom left;
 }
 .scene-caption {
@@ -177,7 +185,7 @@ useMotionScope(root, (delta) => {
   }
   .vault-mascot {
     left: 0;
-    transform: scale(0.55);
+    transform: scale(0.78);
   }
 }
 </style>

@@ -34,12 +34,17 @@ test('宝箱开合与小黄脸反馈独立，关闭动效仍能使用', async ({
   await page.goto('/resources');
   await page.getByRole('button', { name: '跳过开场，进入博客 ↗' }).click();
   const chest = page.getByRole('button', { name: '打开像素宝箱' });
+  await expect.poll(() => chest.locator('svg').getAttribute('style')).toMatch(/rotate\((?!0deg)/);
+  await expect(chest.locator('svg > g').first()).toHaveAttribute('opacity', '0');
   await chest.click();
+  await expect
+    .poll(async () => Number(await chest.locator('svg > g').first().getAttribute('opacity')))
+    .toBeGreaterThan(0.5);
   const lid = chest.locator('svg > g').last();
   await expect
     .poll(() => lid.getAttribute('transform'))
     .not.toBe('translate(0 0) rotate(0 170 100)');
-  await page.getByRole('button', { name: '逗逗小黄脸' }).click();
+  await page.getByRole('button', { name: '和探险家小黄脸打招呼' }).click();
   await expect(chest).toHaveAttribute('aria-pressed', 'true');
   await expect(chest).toHaveAttribute('aria-pressed', 'false', { timeout: 7000 });
   await page.screenshot({ path: test.info().outputPath('resource-vault.png') });
