@@ -91,6 +91,7 @@ function selectCategory(/** @type {string} */ value) {
               'markdown-content-workflow': 'Markdown 内容管理',
               'brand-mascot-and-motion': '品牌角色与动效',
               'performance-and-loading': '性能与资源加载',
+              'resource-vault-and-calendar': '资源仓库与完整月历',
             }[slug] || slug
           }}
           ↗</RouterLink
