@@ -52,7 +52,7 @@ draft: false
 
 ### 参考 01｜Dabarti CGI — The Photons（2025）
 
-[查看原作图片：The Photons 原始设计图片](https://dabarti.com/media/projects/the-photons/09-caustics-frame-07.jpg)
+![The Photons 原始设计图片](https://dabarti.com/media/projects/the-photons/09-caustics-frame-07.jpg)
 
 - **设计方：**Dabarti CGI；**年份：**2025
 - **风格观察：**透明弯曲玻璃、聚散明显的焦散光纹
@@ -61,7 +61,7 @@ draft: false
 
 ### 参考 02｜Newfangled Mind — Patterned Glass Posters（2025）
 
-[查看原作图片：Patterned Glass Posters 原始设计图片](https://www.newfangledmind.com/content/work/patterned-glass-posters/img-04-960w.webp)
+![Patterned Glass Posters 原始设计图片](https://www.newfangledmind.com/content/work/patterned-glass-posters/img-04-960w.webp)
 
 - **设计方：**Newfangled Mind；**年份：**2025
 - **风格观察：**压纹玻璃叠压摄影、局部折射与文本层次
@@ -70,7 +70,7 @@ draft: false
 
 ### 参考 03｜La Colonia — FusinaLab Visual Identity（2025）
 
-[查看原作图片：FusinaLab Visual Identity 原始设计图片](https://cdn.sanity.io/images/3hzqxuow/production/de5d59cf7846d9219b50dda4e401bfdc0cbb1a92-3320x5902.jpg?fit=max&fm=webp&q=80&w=3840)
+![FusinaLab Visual Identity 原始设计图片](https://cdn.sanity.io/images/3hzqxuow/production/de5d59cf7846d9219b50dda4e401bfdc0cbb1a92-3320x5902.jpg?fit=max&fm=webp&q=80&w=3840)
 
 - **设计方：**La Colonia；**年份：**2025
 - **风格观察：**黑底半透明玻璃、锐利高光、细微表面纹理
@@ -79,7 +79,7 @@ draft: false
 
 ### 参考 04｜Wes Cockx / Jess Marak 与 Google 团队 — Google I/O 2025（2025）
 
-[查看原作图片：Google I/O 2025 原始设计图片](https://storage.googleapis.com/gweb-uniblog-publish-prod/images/IO25_Intro_Hero.width-2200.format-webp.max-1440x810.png)
+![Google I/O 2025 原始设计图片](https://storage.googleapis.com/gweb-uniblog-publish-prod/images/IO25_Intro_Hero.width-2200.format-webp.max-1440x810.png)
 
 - **设计方：**Wes Cockx / Jess Marak 与 Google 团队；**年份：**2025
 - **风格观察：**空间化几何体、光谱色散与立体色彩
