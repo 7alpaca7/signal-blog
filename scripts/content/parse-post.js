@@ -127,6 +127,7 @@ export function parsePost(source, filename, { base = '/', imageSize = () => unde
     excerpt: meta.excerpt,
     category: meta.category,
     tags: meta.tags,
+    publishedTimestamp: publishedAt,
     publishedAt: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Shanghai' }).format(
       new Date(publishedAt),
     ),

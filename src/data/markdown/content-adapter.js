@@ -1,3 +1,5 @@
+import { comparePublicationTime } from '@/modules/articles/model/article-time.js';
+
 import { articles, activity, loaders } from 'virtual:blog-content';
 
 import { groupActivity, isCalendarMonth } from '@/modules/activity/model/activity-calendar.js';
@@ -8,9 +10,7 @@ export function createMarkdownArticleRepository() {
   const repository = {
     async list({ signal } = {}) {
       signal?.throwIfAborted();
-      return structuredClone(articles).sort(
-        (a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.slug.localeCompare(b.slug),
-      );
+      return structuredClone(articles).sort(comparePublicationTime);
     },
     async getBySlug(slug, { signal } = {}) {
       signal?.throwIfAborted();

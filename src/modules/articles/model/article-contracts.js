@@ -13,6 +13,7 @@
  * @property {string} category
  * @property {string[]} tags
  * @property {string} publishedAt ISO 日历日期，按博客时区解释。
+ * @property {string} [publishedTimestamp] 含时区的完整发布时间，用于同日排序；日期字段仅用于展示。
  * @property {number} readingMinutes
  * @property {string} [html] 构建时经过白名单净化的 Markdown HTML。
  * @property {ArticleSection[]} sections

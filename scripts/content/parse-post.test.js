@@ -21,6 +21,8 @@ describe('Markdown 内容边界', () => {
       'example.md',
     );
     expect(post.article.slug).toBe('example');
+    expect(post.article.publishedAt).toBe('2026-10-28');
+    expect(post.article.publishedTimestamp).toBe('2026-10-28T09:20:00+08:00');
     expect(post.article.sections.map((section) => section.id)).toEqual(['start', '重复', '重复-2']);
     expect(post.article.html).toContain('<strong>加粗</strong>');
     expect(post.article.html).toContain('language-js');

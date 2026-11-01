@@ -55,3 +55,38 @@ describe('归档筛选', () => {
     expect(filterArticles(articles, normalizeArchiveQuery({ q: 'missing' }))).toEqual([]);
   });
 });
+
+it('同日按完整发布时间倒序，时区按实际时刻比较，最早排序反向且不改变原数组', () => {
+  const entries = [
+    {
+      ...articles[0],
+      id: 'early',
+      slug: 'a',
+      publishedAt: '2026-11-01',
+      publishedTimestamp: '2026-11-01T09:00:00+08:00',
+    },
+    {
+      ...articles[0],
+      id: 'late',
+      slug: 'z',
+      publishedAt: '2026-11-01',
+      publishedTimestamp: '2026-11-01T10:00:00+08:00',
+    },
+    {
+      ...articles[0],
+      id: 'middle',
+      slug: 'm',
+      publishedAt: '2026-11-01',
+      publishedTimestamp: '2026-11-01T01:30:00Z',
+    },
+  ];
+  expect(filterArticles(entries, normalizeArchiveQuery({})).map((item) => item.id)).toEqual([
+    'late',
+    'middle',
+    'early',
+  ]);
+  expect(
+    filterArticles(entries, normalizeArchiveQuery({ sort: 'old' })).map((item) => item.id),
+  ).toEqual(['early', 'middle', 'late']);
+  expect(entries.map((item) => item.id)).toEqual(['early', 'late', 'middle']);
+});

@@ -9,6 +9,12 @@ defineProps({
     required: true,
   },
 });
+const clock = new Intl.DateTimeFormat('zh-CN', {
+  timeZone: 'Asia/Shanghai',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+});
 function setEntryDirection(/** @type {PointerEvent} */ event) {
   const element = /** @type {HTMLElement} */ (event.currentTarget);
   const rect = element.getBoundingClientRect();
@@ -29,7 +35,12 @@ function setEntryDirection(/** @type {PointerEvent} */ event) {
       :style="{ '--row-delay': `${index * 0.03}s` }"
       @pointerenter="setEntryDirection"
     >
-      <time :datetime="article.publishedAt">{{ article.publishedAt }}</time>
+      <time :datetime="article.publishedTimestamp || article.publishedAt"
+        ><span>{{ article.publishedAt }}</span
+        ><small v-if="article.publishedTimestamp">{{
+          clock.format(new Date(article.publishedTimestamp))
+        }}</small></time
+      >
       <div>
         <span class="eyebrow category">{{ article.category }}</span>
         <h3>{{ article.title }}</h3>
@@ -58,6 +69,11 @@ function setEntryDirection(/** @type {PointerEvent} */ event) {
 .article-row:hover h3,
 .category {
   color: var(--color-acid);
+}
+time small {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
 }
 time {
   font: 12px var(--font-mono);

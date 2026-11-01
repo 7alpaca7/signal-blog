@@ -1,3 +1,5 @@
+import { comparePublicationTime } from './article-time.js';
+
 /** @typedef {import('./article-contracts.js').Article} Article */
 /** @typedef {import('./article-contracts.js').ArticleQuery} ArticleQuery */
 
@@ -32,7 +34,7 @@ export function filterArticles(
       );
     })
     .sort((a, b) => {
-      const order = a.publishedAt.localeCompare(b.publishedAt);
-      return query.sort === 'old' ? order : -order;
+      const order = comparePublicationTime(a, b);
+      return query.sort === 'old' ? -order : order;
     });
 }

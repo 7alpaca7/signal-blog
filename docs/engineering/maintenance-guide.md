@@ -117,3 +117,6 @@ MLDet 笔记入口为 content/posts/mldet-gaussian-mask-joint-segmentation.md，
 创作足迹默认展示本月与前两个月的独立月历卡片。每月真实天数由 createMonthCells 计算，月首/月尾空格补齐六周，所有真实日期显示数字。useDocumentActivity 读取三个月日志，补齐浏览范围中的无记录月份，统计仅对应窗口；复用取消/竞态/重试。今天绿框、选中橙框、未来禁用，方向键与 Home/End 移动日期焦点，回到今天恢复当前窗口。午夜北京时间刷新，后台恢复校正，卸载清理计时器与监听。手机端月份纵排，避免横向溢出与细小触控格。
 
 MaDiNet 笔记位于 content/posts/madinet-mamba-diffusion-sar.md，3 张论文配图位于 public/images/madinet/。发布时间使用实际入库时间，笔记整理日期保留原文；PDF 链接指向所读 arXiv v1，公式与图片沿用统一内容管线。
+
+文章排序使用 model/article-time.js 的 comparePublicationTime。构建元数据保留 publishedTimestamp 完整时刻，publishedAt 仍为北京时间展示日期；首页 repository 与归档共用比较器，同一天按时分秒倒序，相同时按 slug/id 稳定排序。旧演示数据无完整时刻时回退到北京时间当天零点，不伪造历史时间；修订不改变原发布排序，当日修订列表继续按 occurredAt 倒序。
+列表在日期下方展示北京时间时分，time 元素的 datetime 保留完整 ISO 时刻，便于核对同日顺序。
