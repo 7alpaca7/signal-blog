@@ -8,7 +8,8 @@ test('开发日志打卡支持日期、空状态和文章跳转', async ({ page 
   await openBlog(page, '/');
   const activity = page.getByRole('region', { name: '创作足迹', exact: true });
   await activity.scrollIntoViewIfNeeded();
-  await expect(activity.getByRole('combobox', { name: '文档活动月份' })).toHaveValue('2026-10');
+  await expect(activity.getByRole('combobox', { name: '文档活动月份' })).toHaveValue('recent');
+  await activity.getByRole('combobox', { name: '文档活动月份' }).selectOption('2026-10');
   await activity.getByRole('button', { name: '2026-10-28，4 次文档变更', exact: true }).click();
   const details = activity.getByRole('region', { name: '当日文档变更详情' });
   await expect(details.getByRole('status')).toHaveText('4 次文档变更');
@@ -26,4 +27,25 @@ test('开发日志打卡支持日期、空状态和文章跳转', async ({ page 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     '开发日志 04：排查卡顿与资源加载',
   );
+});
+
+test('月初默认连续热力图仍显示上月末记录，可直接点开 MLDet', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-11-01T08:00:00+08:00'));
+  await openBlog(page, '/');
+  const activity = page.getByRole('region', { name: '创作足迹', exact: true });
+  await activity.scrollIntoViewIfNeeded();
+  await expect(activity.getByRole('combobox', { name: '文档活动月份' })).toHaveValue('recent');
+  await expect(activity.locator('.day')).toHaveCount(182);
+  await activity.getByRole('button', { name: '2026-10-31，1 次文档变更', exact: true }).click();
+  const detail = activity.getByRole('region', { name: '当日文档变更详情' });
+  await expect(detail.getByRole('link', { name: /MLDet/ })).toBeVisible();
+  await expect(
+    activity.getByRole('button', { name: '2026-11-01，0 次文档变更', exact: true }),
+  ).toBeVisible();
+  expect(await activity.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: test.info().outputPath('recent-activity.png') });
+  await detail.getByRole('link', { name: /MLDet/ }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/MLDet/);
 });

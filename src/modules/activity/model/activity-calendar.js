@@ -57,3 +57,25 @@ export function createMonthCells(
     };
   });
 }
+
+/** 最近 26 周连续展示，周一开始；UTC 运算避免跨年、闰日和夏令时误差。 */
+export function createRecentCells(
+  /** @type {Record<string, DocumentActivity[]>} */ groups,
+  /** @type {string} */ today,
+) {
+  const current = new Date(`${today}T00:00:00Z`);
+  const offset = (current.getUTCDay() + 6) % 7;
+  const start = current.getTime() - (25 * 7 + offset) * 86_400_000;
+  return Array.from({ length: 26 * 7 }, (_, index) => {
+    const date = new Date(start + index * 86_400_000).toISOString().slice(0, 10);
+    const count = groups[date]?.length || 0;
+    return {
+      date,
+      day: Number(date.slice(8)),
+      count,
+      empty: false,
+      future: date > today,
+      level: Math.min(4, count),
+    };
+  });
+}

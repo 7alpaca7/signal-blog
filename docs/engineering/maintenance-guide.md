@@ -113,3 +113,5 @@ RF-DETR 笔记位于 content/posts/rf-detr-weight-sharing-nas.md，10 张配图�
 宝箱视觉为原创 SVG 三分之四透视、分层木纹与金属包边。开箱光使用渐变光晕、摆动光束、箱口亮边和预建的 12 个上升星粒；逐帧只修改 SVG 属性，不创建节点。参数统一在 MOTION.chest，关闭动效显示静态光效。
 
 MLDet 笔记入口为 content/posts/mldet-gaussian-mask-joint-segmentation.md，19 张配图位于 public/images/mldet/。按作者补录要求将 publishedAt 设为 2026-10-31（笔记完成日），创作足迹据此归入十月最后一天；实际 Git 提交和部署时间保持真实时间。原始笔记的相对图片路径已转换，PDF 链接指向所读 arXiv v1。
+
+创作足迹默认 recent 最近 26 周连续热力图，周一到周日纵排并标注月份；跨月不清空历史，默认月份选择器仍保留月度查询。composable 通过既有 listByMonth 并行读取覆盖的月份，统计仅包含所示区间。移动端日历内部横向滚动，初次定位到最近一周，选择日期不重置；高对比色阶与每日详情复用原组件。

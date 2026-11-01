@@ -37,18 +37,23 @@ const {
         <button
           type="button"
           aria-label="查看更早月份"
-          :disabled="months.indexOf(month) === months.length - 1 || status === 'loading'"
+          :disabled="
+            month === 'recent' ||
+            months.indexOf(month) === months.length - 1 ||
+            status === 'loading'
+          "
           @click="moveMonth(1)"
         >
           ←</button
         ><select v-model="month" aria-label="文档活动月份">
+          <option value="recent">最近半年 · 连续记录</option>
           <option v-for="value in months" :key="value" :value="value">
             {{ value.replace('-', ' / ') }}
           </option></select
         ><button
           type="button"
           aria-label="查看更新月份"
-          :disabled="months.indexOf(month) === 0 || status === 'loading'"
+          :disabled="month === 'recent' || months.indexOf(month) === 0 || status === 'loading'"
           @click="moveMonth(-1)"
         >
           →
@@ -57,7 +62,12 @@ const {
     </div>
     <ResourceState :status="status" :error="error" @retry="reload" /><template
       v-if="status === 'success'"
-      ><div class="activity-stats" aria-live="polite">
+      ><p class="range-label">
+        {{
+          month === 'recent' ? `${cells[0]?.date} — ${today} · 最近 26 周` : `${month} · 月度记录`
+        }}
+      </p>
+      <div class="activity-stats" aria-live="polite">
         <span
           ><b>{{ changes.length }}</b> 次文档变更</span
         ><span
@@ -67,9 +77,10 @@ const {
           <strong>{{ changes.length - created }}</strong></span
         >
       </div>
-      <div class="activity-body">
+      <div class="activity-body" :class="{ recent: month === 'recent' }">
         <ActivityCalendar
           :cells="cells"
+          :recent="month === 'recent'"
           :selected-day="selectedDay"
           :today="today"
           @select="selectedDay = $event"
@@ -139,6 +150,15 @@ const {
   grid-template-columns: minmax(230px, 300px) minmax(0, 1fr);
   gap: 50px;
   align-items: start;
+}
+.activity-body.recent {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+}
+.range-label {
+  margin-top: 24px;
+  color: var(--color-muted);
+  font: 11px var(--font-mono);
 }
 .activity-footnote {
   color: var(--color-muted);

@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { computed, nextTick, ref, watch } from 'vue';
+const props = defineProps({
+  recent: { type: Boolean, default: false },
   cells: {
     type: /** @type {import('vue').PropType<ReturnType<import('../model/activity-calendar.js').createMonthCells>>} */ (
       Array
@@ -10,30 +12,67 @@ defineProps({
   today: { type: String, required: true },
 });
 const emit = defineEmits(['select']);
+const viewport = ref(/** @type {HTMLElement|null} */ (null));
+const labels = computed(() => {
+  const result = [];
+  let previous = '';
+  for (let index = 0; index < props.cells.length; index += 7) {
+    const cell = props.cells
+      .slice(index, index + 7)
+      .find((item) => !item.empty && (item.day === 1 || index === 0));
+    if (cell && cell.date.slice(0, 7) !== previous) {
+      previous = cell.date.slice(0, 7);
+      result.push({ column: index / 7 + 1, label: `${Number(cell.date.slice(5, 7))}月` });
+    }
+  }
+  return result;
+});
+// 小屏保留足够大的点击格，初次与切换范围时定位到最近一周，不随日期选择重置滚动。
+watch(
+  () => [props.recent, props.cells[0]?.date],
+  async () => {
+    await nextTick();
+    if (viewport.value && props.recent) viewport.value.scrollLeft = viewport.value.scrollWidth;
+  },
+  { immediate: true },
+);
 const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
 </script>
 
 <template>
-  <div class="calendar-content">
-    <div class="calendar-grid">
-      <div class="weekdays" aria-hidden="true">
-        <span v-for="day in weekdays" :key="day">{{ day }}</span>
+  <div class="calendar-content" :class="{ 'recent-calendar': recent }">
+    <div
+      ref="viewport"
+      class="calendar-viewport"
+      tabindex="0"
+      aria-label="创作热力日历，窄屏可横向滚动"
+    >
+      <div v-if="recent" class="month-labels" aria-hidden="true">
+        <span v-for="label in labels" :key="label.column" :style="{ gridColumn: label.column }">{{
+          label.label
+        }}</span>
       </div>
-      <div class="days" aria-label="每日文档变更记录">
-        <template v-for="(cell, index) in cells" :key="index"
-          ><span v-if="cell.empty" class="blank" /><button
-            v-else
-            type="button"
-            class="day"
-            :class="[`level-${cell.level}`, { today: cell.date === today }]"
-            :disabled="cell.future"
-            :aria-label="`${cell.date}，${cell.future ? '尚未到来' : `${cell.count} 次文档变更`}`"
-            :aria-pressed="selectedDay === cell.date"
-            @click="emit('select', cell.date)"
+      <div class="calendar-grid">
+        <div class="weekdays" aria-hidden="true">
+          <span v-for="day in weekdays" :key="day">{{ day }}</span>
+        </div>
+        <div class="days" aria-label="每日文档变更记录">
+          <template v-for="(cell, index) in cells" :key="index"
+            ><span v-if="cell.empty" class="blank" /><button
+              v-else
+              type="button"
+              class="day"
+              :class="[`level-${cell.level}`, { today: cell.date === today }]"
+              :disabled="cell.future"
+              :aria-label="`${cell.date}，${cell.future ? '尚未到来' : `${cell.count} 次文档变更`}`"
+              :aria-pressed="selectedDay === cell.date"
+              :title="`${cell.date} · ${cell.count} 次变更`"
+              @click="emit('select', cell.date)"
+            >
+              <span :class="{ 'sr-date': recent }">{{ cell.day }}</span>
+            </button></template
           >
-            {{ cell.day }}
-          </button></template
-        >
+        </div>
       </div>
     </div>
     <div class="legend" aria-label="文档变更次数：无、1 次、2 次、3 次、4 次及以上">
@@ -44,6 +83,53 @@ const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
 </template>
 
 <style scoped>
+.calendar-viewport {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 4px 4px 8px;
+}
+.recent-calendar {
+  --cell-size: 22px;
+  --cell-gap: 7px;
+}
+.recent-calendar .calendar-grid {
+  width: max-content;
+}
+.recent-calendar .days {
+  grid-template-rows: repeat(7, var(--cell-size));
+  grid-auto-columns: var(--cell-size);
+  gap: var(--cell-gap);
+}
+.recent-calendar .day {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  min-height: 0;
+}
+.recent-calendar .weekdays {
+  grid-template-rows: repeat(7, var(--cell-size));
+  gap: var(--cell-gap);
+  width: 12px;
+}
+.month-labels {
+  display: grid;
+  grid-template-columns: repeat(26, var(--cell-size));
+  gap: var(--cell-gap);
+  margin-left: 24px;
+  margin-bottom: 12px;
+  width: max-content;
+  font: 10px var(--font-mono);
+  color: var(--color-muted);
+}
+.month-labels span {
+  white-space: nowrap;
+}
+.sr-date {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
 .calendar-grid {
   display: flex;
   gap: 12px;
@@ -159,6 +245,15 @@ const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
   .weekdays {
     gap: 10px;
     grid-template-rows: repeat(7, 34px);
+  }
+}
+@media (pointer: coarse) {
+  .recent-calendar {
+    --cell-size: 24px;
+    --cell-gap: 10px;
+  }
+  .recent-calendar .day::before {
+    inset: -4px;
   }
 }
 </style>

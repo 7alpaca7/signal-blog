@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   createMonthCells,
+  createRecentCells,
   groupActivity,
   isCalendarMonth,
   toBlogDate,
@@ -38,4 +39,17 @@ describe('博客文档贡献日历', () => {
     expect(isCalendarMonth('2026-00')).toBe(false);
     expect(() => createMonthCells('2026-13', {}, '2026-10-28')).toThrow('月份格式无效');
   });
+});
+
+it('连续日历跨月跨年且不重复日期，支持闰日与未来日期', () => {
+  const cells = createRecentCells({}, '2027-01-01');
+  expect(cells).toHaveLength(182);
+  expect(new Set(cells.map((cell) => cell.date)).size).toBe(182);
+  expect(new Date(`${cells[0].date}T00:00:00Z`).getUTCDay()).toBe(1);
+  expect(cells.some((cell) => cell.date === '2026-12-31')).toBe(true);
+  expect(cells.filter((cell) => cell.future).map((cell) => cell.date)).toEqual([
+    '2027-01-02',
+    '2027-01-03',
+  ]);
+  expect(createRecentCells({}, '2024-03-01').some((cell) => cell.date === '2024-02-29')).toBe(true);
 });
