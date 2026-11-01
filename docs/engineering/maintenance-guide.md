@@ -115,3 +115,5 @@ RF-DETR 笔记位于 content/posts/rf-detr-weight-sharing-nas.md，10 张配图�
 MLDet 笔记入口为 content/posts/mldet-gaussian-mask-joint-segmentation.md，19 张配图位于 public/images/mldet/。按作者补录要求将 publishedAt 设为 2026-10-31（笔记完成日），创作足迹据此归入十月最后一天；实际 Git 提交和部署时间保持真实时间。原始笔记的相对图片路径已转换，PDF 链接指向所读 arXiv v1。
 
 创作足迹默认展示本月与前两个月的独立月历卡片。每月真实天数由 createMonthCells 计算，月首/月尾空格补齐六周，所有真实日期显示数字。useDocumentActivity 读取三个月日志，补齐浏览范围中的无记录月份，统计仅对应窗口；复用取消/竞态/重试。今天绿框、选中橙框、未来禁用，方向键与 Home/End 移动日期焦点，回到今天恢复当前窗口。午夜北京时间刷新，后台恢复校正，卸载清理计时器与监听。手机端月份纵排，避免横向溢出与细小触控格。
+
+MaDiNet 笔记位于 content/posts/madinet-mamba-diffusion-sar.md，3 张论文配图位于 public/images/madinet/。发布时间使用实际入库时间，笔记整理日期保留原文；PDF 链接指向所读 arXiv v1，公式与图片沿用统一内容管线。

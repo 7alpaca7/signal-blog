@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { openBlog } from './helpers/navigation.js';
 
 test('三个月按真实日期排列，未来禁用，跨月键盘与记录跳转正常', async ({ page }) => {
-  await page.clock.setFixedTime(new Date('2026-11-01T08:00:00+08:00'));
+  await page.clock.setFixedTime(new Date('2026-11-01T23:59:00+08:00'));
   await openBlog(page, '/');
   const activity = page.getByRole('region', { name: '创作足迹', exact: true });
   await activity.scrollIntoViewIfNeeded();
@@ -24,12 +24,12 @@ test('三个月按真实日期排列，未来禁用，跨月键盘与记录跳�
   const details = activity.getByRole('region', { name: '当日文档变更详情' });
   await expect(details.getByRole('link', { name: /MLDet/ })).toBeVisible();
   await lastDay.press('ArrowRight');
-  const today = november.getByRole('button', { name: '2026-11-01，0 次文档变更', exact: true });
+  const today = november.getByRole('button', { name: /^2026-11-01，\d+ 次文档变更$/, exact: true });
   await expect(today).toBeFocused();
   await today.press('ArrowRight');
   await expect(today).toBeFocused();
   await today.press('Enter');
-  await expect(details.getByText('这一天没有文档变更。')).toBeVisible();
+  await expect(details.getByRole('link', { name: /MaDiNet/ })).toBeVisible();
   await activity.getByRole('button', { name: '回到今天' }).click();
   await expect(today).toHaveAttribute('aria-current', 'date');
   await expect(today).toHaveAttribute('aria-pressed', 'true');
@@ -43,7 +43,7 @@ test('三个月按真实日期排列，未来禁用，跨月键盘与记录跳�
 });
 
 test('月份浏览补齐无记录月份，回到今天恢复当前窗口与选中日', async ({ page }) => {
-  await page.clock.setFixedTime(new Date('2026-11-01T08:00:00+08:00'));
+  await page.clock.setFixedTime(new Date('2026-11-01T23:59:00+08:00'));
   await openBlog(page, '/');
   const activity = page.getByRole('region', { name: '创作足迹', exact: true });
   const select = activity.getByRole('combobox', { name: '文档活动月份' });
@@ -57,6 +57,6 @@ test('月份浏览补齐无记录月份，回到今天恢复当前窗口与选�
   await expect(select).toHaveValue('2026-11');
   await expect(activity.getByRole('button', { name: '查看更新月份' })).toBeDisabled();
   await expect(
-    activity.getByRole('button', { name: '2026-11-01，0 次文档变更', exact: true }),
+    activity.getByRole('button', { name: /^2026-11-01，\d+ 次文档变更$/, exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
 });
