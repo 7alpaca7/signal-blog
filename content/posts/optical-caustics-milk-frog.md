@@ -33,7 +33,7 @@ draft: false
 
 ![奶蛙原图参考与新生成图比较](/images/optical-caustics/milk-frog-comparison.png)
 
-原始角色截图（单独查看）：[02_奶蛙原始参考_用户上传.png](/images/optical-caustics/milk-frog-reference.png)。其分辨率只有 154 × 179，参考图中包含 GIF 标识和页面边界，重绘时以其中的角色外形为准，勿将 GIF 标识或原始页面背景当作角色的一部分。
+原始角色截图（单独查看）：[02_奶蛙原始参考_用户上传.png](https://7alpaca7.github.io/signal-blog/images/optical-caustics/milk-frog-reference.png)。其分辨率只有 154 × 179，参考图中包含 GIF 标识和页面边界，重绘时以其中的角色外形为准，勿将 GIF 标识或原始页面背景当作角色的一部分。
 
 ### A 与 B 的区别
 
