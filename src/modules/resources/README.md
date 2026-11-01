@@ -7,3 +7,5 @@ TreasureChest 为 SVG 与闭包弹簧状态，小黄脸使用专属 ExplorerMasc
 新增条目：在 content/resources 新建 JSON，补齐 Resource 契约字段，在 data/resources/catalog.js 装配，同时添加 Pages 静态入口。下载 URL 指向实际存储；固定版本文件可扩展契约增加大小与校验值，目前仅收录动态源码包。
 
 独立作品通过 preview 关联 /experiments/:id，embedUrl 指向原样部署的 HTML；应用 adapter 为静态文件路径补齐 Pages base。sizeLabel/sha256/localFile/downloadLabel 用于本站固定 ZIP 包，与动态 GitHub 源码包区别展示。作品记录的 showcase 字段同时影响文章列表与日历入口。原作品在沙箱 iframe 内运行，其布局与动效独立于博客，不将用户提供的 HTML 当作普通 Markdown 执行。
+
+UNWOVEN 的部署 HTML 增加了自然高度消息桥，宿主严格验证当前 iframe 消息，普通浏览不再产生内外双滚动。下载 ZIP 保留上传原版，部署适配仅涉及窗口高度与 min-height，不改原效果。

@@ -172,4 +172,32 @@ function start(){controls();fallback();if(!ctx)return;gallery.addEventListener('
 start();
 })();
 
-</script></body></html>
+</script>
+<!-- 博客嵌入适配：原始源码 ZIP 保持不变，仅部署副本同步自然内容高度。 -->
+<style>.site-shell{min-height:0}</style>
+<script>
+(() => {
+  const shell = document.querySelector('.site-shell') || document.body;
+  let pending = 0;
+  const report = () => {
+    cancelAnimationFrame(pending);
+    pending = requestAnimationFrame(() => {
+      pending = 0;
+      parent.postMessage({ type: 'signal:showcase-height', height: Math.ceil(shell.getBoundingClientRect().height) }, '*');
+    });
+  };
+  const observer = new ResizeObserver(report);
+  observer.observe(shell);
+  addEventListener('resize', report);
+  addEventListener('load', report);
+  addEventListener('pagehide', () => {
+    observer.disconnect();
+    cancelAnimationFrame(pending);
+    removeEventListener('resize', report);
+    removeEventListener('load', report);
+  }, { once: true });
+  report();
+})();
+</script>
+
+</body></html>

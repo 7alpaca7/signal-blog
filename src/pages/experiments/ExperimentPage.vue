@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, onScopeDispose, ref } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 
 import { useResources } from '@/modules/resources/index.js';
@@ -12,6 +12,17 @@ const resource = computed(() =>
 const frame = ref(/** @type {HTMLIFrameElement|null} */ (null));
 const loaded = ref(false);
 const message = ref('');
+const contentHeight = ref(650);
+/** 沙箱 iframe 为不透明来源，只接受当前窗口的高度消息，不信任任意外部消息。 */
+function receiveHeight(/** @type {MessageEvent} */ event) {
+  if (event.source !== frame.value?.contentWindow || event.data?.type !== 'signal:showcase-height')
+    return;
+  const height = event.data.height;
+  if (typeof height === 'number' && Number.isFinite(height) && height >= 200 && height <= 50_000)
+    contentHeight.value = Math.ceil(height);
+}
+onMounted(() => window.addEventListener('message', receiveHeight));
+onScopeDispose(() => window.removeEventListener('message', receiveHeight));
 /** 在独立 iframe 内保留原作品的样式和生命周期；脚本不共享博客的同源权限。 */
 async function fullscreen() {
   try {
@@ -35,6 +46,7 @@ async function fullscreen() {
     <iframe
       ref="frame"
       :src="resource.embedUrl"
+      :style="{ '--experiment-height': `${contentHeight}px` }"
       title="奶蛙 UNWOVEN 交互作品"
       sandbox="allow-scripts"
       allow="fullscreen"
@@ -79,8 +91,7 @@ iframe {
   display: block;
   border: 0;
   width: 100%;
-  height: calc(100dvh - var(--header-height, 81px) - 74px);
-  min-height: 650px;
+  height: var(--experiment-height, 650px);
   background: #f8f8f5;
 }
 iframe:fullscreen {
@@ -93,10 +104,6 @@ iframe:fullscreen {
   font-size: 11px;
 }
 @media (max-width: 640px) {
-  iframe {
-    height: 85dvh;
-    min-height: 650px;
-  }
   .experiment-toolbar > span {
     flex-basis: 100%;
     order: 3;

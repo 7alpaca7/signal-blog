@@ -122,3 +122,5 @@ MaDiNet 笔记位于 content/posts/madinet-mamba-diffusion-sar.md，3 张论文�
 列表在日期下方展示北京时间时分，time 元素的 datetime 保留完整 ISO 时刻，便于核对同日顺序。
 
 独立交互作品：文章 frontmatter 的 showcase 标识（小写英文 slug）让首页、归档、日历记录转到 /experiments/:id。ExperimentPage 从资源目录查找 preview 与 embedUrl，以 sandbox=allow-scripts 的 iframe 承载原始 HTML，不共享同源脚本权限。作品保存在 public/showcases/，原始 ZIP 保存在 public/downloads/；单独页面的运行、资源加载和动效由原作品负责，卸载 iframe 后浏览器销毁其作用域。新增需同步路由静态入口。UNWOVEN 的图片为外部来源，并未包含在 ZIP 中，来源清单和 README 原样保留；外部图片失败由原作品提示，本站不伪造替代素材。资源分类新增“前端视觉效果”，固定源码包提供真实字节数与 SHA-256。
+
+作品展示滚动：部署版 UNWOVEN 注入 ResizeObserver 高度桥，测量 .site-shell 自然高度并发送 signal:showcase-height；ExperimentPage 验证 event.source 为当前 iframe，校验数值范围后调整 CSS 高度。普通展示只由外层页面滚动，全屏 iframe 使用 100dvh 并保留内部滚动。部署副本覆盖 min-height:100vh 避免高度反馈无法缩小；原始 ZIP 完全不改。桥接 RAF/observer/listener 与宿主消息监听都有清理路径。

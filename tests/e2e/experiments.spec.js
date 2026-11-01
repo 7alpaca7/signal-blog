@@ -29,6 +29,30 @@ test('作品记录直接打开展示，分类与源码下载形成闭环', async
   const frame = page.frameLocator('iframe');
   await expect(frame.locator('#assetStatus')).toContainText('4 / 4');
   await expect(frame.locator('canvas')).toHaveCount(1);
+  await expect
+    .poll(() => frame.locator('html').evaluate((element) => element.scrollHeight - innerHeight))
+    .toBeLessThanOrEqual(2);
+  const frameHeight = await iframe.evaluate((element) => element.getBoundingClientRect().height);
+  await page.evaluate(() =>
+    window.postMessage({ type: 'signal:showcase-height', height: 49_999 }, '*'),
+  );
+  await expect
+    .poll(() => iframe.evaluate((element) => element.getBoundingClientRect().height))
+    .toBeLessThan(frameHeight + 2);
+
+  const viewport = page.viewportSize();
+  await page.setViewportSize({ width: viewport.width > 700 ? 600 : 1000, height: 900 });
+  await expect
+    .poll(async () =>
+      Math.abs(
+        (await iframe.evaluate((element) => element.getBoundingClientRect().height)) -
+          (await frame
+            .locator('.site-shell')
+            .evaluate((element) => element.getBoundingClientRect().height)),
+      ),
+    )
+    .toBeLessThanOrEqual(2);
+  await page.setViewportSize(viewport);
   await frame.locator('#togglePlay').click();
   await expect(frame.locator('#togglePlay')).toHaveAttribute('aria-pressed', 'false');
   await page.reload();
