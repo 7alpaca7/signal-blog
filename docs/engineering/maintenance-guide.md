@@ -114,4 +114,4 @@ RF-DETR 笔记位于 content/posts/rf-detr-weight-sharing-nas.md，10 张配图�
 
 MLDet 笔记入口为 content/posts/mldet-gaussian-mask-joint-segmentation.md，19 张配图位于 public/images/mldet/。按作者补录要求将 publishedAt 设为 2026-10-31（笔记完成日），创作足迹据此归入十月最后一天；实际 Git 提交和部署时间保持真实时间。原始笔记的相对图片路径已转换，PDF 链接指向所读 arXiv v1。
 
-创作足迹默认 recent 最近 26 周连续热力图，周一到周日纵排并标注月份；跨月不清空历史，默认月份选择器仍保留月度查询。composable 通过既有 listByMonth 并行读取覆盖的月份，统计仅包含所示区间。移动端日历内部横向滚动，初次定位到最近一周，选择日期不重置；高对比色阶与每日详情复用原组件。
+创作足迹默认展示本月与前两个月的独立月历卡片。每月真实天数由 createMonthCells 计算，月首/月尾空格补齐六周，所有真实日期显示数字。useDocumentActivity 读取三个月日志，补齐浏览范围中的无记录月份，统计仅对应窗口；复用取消/竞态/重试。今天绿框、选中橙框、未来禁用，方向键与 Home/End 移动日期焦点，回到今天恢复当前窗口。午夜北京时间刷新，后台恢复校正，卸载清理计时器与监听。手机端月份纵排，避免横向溢出与细小触控格。

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   createMonthCells,
-  createRecentCells,
+  shiftMonth,
   groupActivity,
   isCalendarMonth,
   toBlogDate,
@@ -41,15 +41,21 @@ describe('博客文档贡献日历', () => {
   });
 });
 
-it('连续日历跨月跨年且不重复日期，支持闰日与未来日期', () => {
-  const cells = createRecentCells({}, '2027-01-01');
-  expect(cells).toHaveLength(182);
-  expect(new Set(cells.map((cell) => cell.date)).size).toBe(182);
-  expect(new Date(`${cells[0].date}T00:00:00Z`).getUTCDay()).toBe(1);
-  expect(cells.some((cell) => cell.date === '2026-12-31')).toBe(true);
-  expect(cells.filter((cell) => cell.future).map((cell) => cell.date)).toEqual([
-    '2027-01-02',
-    '2027-01-03',
-  ]);
-  expect(createRecentCells({}, '2024-03-01').some((cell) => cell.date === '2024-02-29')).toBe(true);
+it('月份移动跨年，公历大小月与闰年世纪规则正确', () => {
+  expect(shiftMonth('2026-01', -2)).toBe('2025-11');
+  expect(shiftMonth('2026-12', 1)).toBe('2027-01');
+  for (const [month, days] of [
+    ['2026-09', 30],
+    ['2026-10', 31],
+    ['2026-11', 30],
+    ['2024-02', 29],
+    ['2100-02', 28],
+    ['2000-02', 29],
+  ]) {
+    const cells = createMonthCells(month, {}, `${month}-01`).filter((cell) => !cell.empty);
+    expect(cells).toHaveLength(days);
+    expect(cells[0].day).toBe(1);
+    expect(cells.at(-1).day).toBe(days);
+    expect(new Set(cells.map((cell) => cell.date)).size).toBe(days);
+  }
 });
