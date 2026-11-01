@@ -111,3 +111,5 @@ RF-DETR 笔记位于 content/posts/rf-detr-weight-sharing-nas.md，10 张配图�
 资源仓库现使用独立 ExplorerMascot：探险帽、挥手与招呼星光，不复用饮料动作。宝箱待机分批摇晃与顶盖，只有点击开启光束；两者计时独立，参数位于 MOTION.explorer/chest，共享可见性帧调度与减少动效设置。
 
 宝箱视觉为原创 SVG 三分之四透视、分层木纹与金属包边。开箱光使用渐变光晕、摆动光束、箱口亮边和预建的 12 个上升星粒；逐帧只修改 SVG 属性，不创建节点。参数统一在 MOTION.chest，关闭动效显示静态光效。
+
+MLDet 笔记入口为 content/posts/mldet-gaussian-mask-joint-segmentation.md，19 张配图位于 public/images/mldet/。按作者补录要求将 publishedAt 设为 2026-10-31（笔记完成日），创作足迹据此归入十月最后一天；实际 Git 提交和部署时间保持真实时间。原始笔记的相对图片路径已转换，PDF 链接指向所读 arXiv v1。
