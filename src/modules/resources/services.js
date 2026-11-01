@@ -1,6 +1,6 @@
 import { inject } from 'vue';
 
-/** @typedef {{id:string,name:string,category:string,description:string,version:string,platform:string,format:string,url:string,source:string,instructions:string,articles:string[]}} Resource */
+/** @typedef {{id:string,name:string,category:string,description:string,version:string,platform:string,format:string,url:string,source:string,instructions:string,articles:string[],preview?:string,embedUrl?:string,sizeLabel?:string,sha256?:string,downloadLabel?:string,localFile?:boolean}} Resource */
 /** @type {import('vue').InjectionKey<Resource[]>} */
 export const RESOURCE_CATALOG = Symbol('resource-catalog');
 

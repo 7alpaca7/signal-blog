@@ -1,0 +1,42 @@
+[
+  {
+    "id": "01",
+    "title": "屈腿挥手",
+    "file": "mature-special-wave.webp",
+    "focus": [
+      0.52,
+      0.5
+    ],
+    "url": "https://works.cohub.live/w/157e937b-95da-4c17-add4-f916e37c3574/milk-frog-museum/1980bbadcb26/content/assets/archive-references/mature-special-wave.webp"
+  },
+  {
+    "id": "02",
+    "title": "张嘴大笑",
+    "file": "expression-laugh-open.webp",
+    "focus": [
+      0.5,
+      0.46
+    ],
+    "url": "https://works.cohub.live/w/157e937b-95da-4c17-add4-f916e37c3574/milk-frog-museum/1980bbadcb26/content/assets/archive-references/expression-laugh-open.webp"
+  },
+  {
+    "id": "03",
+    "title": "抱头大笑",
+    "file": "expression-laugh-head.webp",
+    "focus": [
+      0.5,
+      0.44
+    ],
+    "url": "https://works.cohub.live/w/157e937b-95da-4c17-add4-f916e37c3574/milk-frog-museum/1980bbadcb26/content/assets/archive-references/expression-laugh-head.webp"
+  },
+  {
+    "id": "04",
+    "title": "低头沉思",
+    "file": "expression-downcast.webp",
+    "focus": [
+      0.5,
+      0.5
+    ],
+    "url": "https://works.cohub.live/w/157e937b-95da-4c17-add4-f916e37c3574/milk-frog-museum/1980bbadcb26/content/assets/archive-references/expression-downcast.webp"
+  }
+]

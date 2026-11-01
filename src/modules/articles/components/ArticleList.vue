@@ -31,7 +31,11 @@ function setEntryDirection(/** @type {PointerEvent} */ event) {
       v-for="(article, index) in articles"
       :key="article.id"
       class="article-row"
-      :to="{ name: 'article', params: { slug: article.slug } }"
+      :to="
+        article.showcase
+          ? { name: 'experiment', params: { id: article.showcase } }
+          : { name: 'article', params: { slug: article.slug } }
+      "
       :style="{ '--row-delay': `${index * 0.03}s` }"
       @pointerenter="setEntryDirection"
     >

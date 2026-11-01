@@ -34,3 +34,5 @@ revisions:
 当前继续使用演示构建命令 `npm run build -- --mode demo`：会话点赞、禁止索引等展示阶段边界仍在，不能把 Markdown 接入视为生产发布完成。
 
 公式支持 `$...$`、`$$...$$` 和 LaTeX 括号语法，KaTeX 在构建时渲染，浏览器只加载样式及所需字体。原始 HTML 仍关闭，公式 trust:false。`/images/` 本地路径会自动添加部署基础路径，PNG 尺寸在构建时写入，避免加载后正文跳动。
+
+独立前端作品可选 showcase: unwoven 一类的小写英文标识；首页、归档和日历点击时进入 /experiments/unwoven 展示页，不进入文章详情。展示页须在资源目录配置 preview、embedUrl 并部署对应独立 HTML 与 Pages 入口，不能填写任意外部跳转 URL。正文仍用于保存作品说明。

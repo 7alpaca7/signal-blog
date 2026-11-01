@@ -67,3 +67,18 @@ it('构建时渲染公式并为本地图片应用 Pages 前缀和固有尺寸', 
   expect(article.html).toContain('height="600"');
   expect(article.html).not.toContain('MATH_');
 });
+
+it('独立作品保留展示页标识到记录和日历，拒绝任意路径', () => {
+  const post = parsePost(
+    header.replace('category: 开发', 'category: 创意实验\nshowcase: unwoven') + '## 体验',
+    'unwoven-visual-experiment.md',
+  );
+  expect(post.article.showcase).toBe('unwoven');
+  expect(post.activity.every((item) => item.showcase === 'unwoven')).toBe(true);
+  expect(() =>
+    parsePost(
+      header.replace('category: 开发', 'category: 创意实验\nshowcase: ../escape') + '## 体验',
+      'bad.md',
+    ),
+  ).toThrow('showcase');
+});

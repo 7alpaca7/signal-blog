@@ -12,6 +12,8 @@ export function writeStaticEntries(outputDirectory, slugs) {
   for (const route of [
     'resources',
     'resources/signal-source',
+    'resources/unwoven-source',
+    'experiments/unwoven',
     'articles',
     ...slugs.map((slug) => `articles/${slug}`),
   ]) {

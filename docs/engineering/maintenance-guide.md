@@ -120,3 +120,5 @@ MaDiNet 笔记位于 content/posts/madinet-mamba-diffusion-sar.md，3 张论文�
 
 文章排序使用 model/article-time.js 的 comparePublicationTime。构建元数据保留 publishedTimestamp 完整时刻，publishedAt 仍为北京时间展示日期；首页 repository 与归档共用比较器，同一天按时分秒倒序，相同时按 slug/id 稳定排序。旧演示数据无完整时刻时回退到北京时间当天零点，不伪造历史时间；修订不改变原发布排序，当日修订列表继续按 occurredAt 倒序。
 列表在日期下方展示北京时间时分，time 元素的 datetime 保留完整 ISO 时刻，便于核对同日顺序。
+
+独立交互作品：文章 frontmatter 的 showcase 标识（小写英文 slug）让首页、归档、日历记录转到 /experiments/:id。ExperimentPage 从资源目录查找 preview 与 embedUrl，以 sandbox=allow-scripts 的 iframe 承载原始 HTML，不共享同源脚本权限。作品保存在 public/showcases/，原始 ZIP 保存在 public/downloads/；单独页面的运行、资源加载和动效由原作品负责，卸载 iframe 后浏览器销毁其作用域。新增需同步路由静态入口。UNWOVEN 的图片为外部来源，并未包含在 ZIP 中，来源清单和 README 原样保留；外部图片失败由原作品提示，本站不伪造替代素材。资源分类新增“前端视觉效果”，固定源码包提供真实字节数与 SHA-256。

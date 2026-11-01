@@ -35,7 +35,12 @@ const clock = new Intl.DateTimeFormat('zh-CN', {
           <span :class="entry.action">{{ entry.action === 'created' ? '+ 新增' : '~ 修改' }}</span
           ><time :datetime="entry.occurredAt">{{ clock.format(new Date(entry.occurredAt)) }}</time>
         </div>
-        <RouterLink :to="{ name: 'article', params: { slug: entry.articleSlug } }"
+        <RouterLink
+          :to="
+            entry.showcase
+              ? { name: 'experiment', params: { id: entry.showcase } }
+              : { name: 'article', params: { slug: entry.articleSlug } }
+          "
           >{{ entry.documentTitle }} <span aria-hidden="true">↗</span></RouterLink
         >
         <p>{{ entry.summary }}</p>

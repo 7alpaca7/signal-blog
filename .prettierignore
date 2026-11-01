@@ -4,3 +4,6 @@ coverage/
 playwright-report/
 test-results/
 package-lock.json
+
+# 用户上传的独立作品原样保存；源码 ZIP 与页面不做格式化改写。
+public/showcases/unwoven/

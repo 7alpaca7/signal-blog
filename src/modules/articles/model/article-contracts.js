@@ -12,6 +12,7 @@
  * @property {string} excerpt
  * @property {string} category
  * @property {string[]} tags
+ * @property {string} [showcase] 独立交互作品标识，存在时记录入口打开展示页。
  * @property {string} publishedAt ISO 日历日期，按博客时区解释。
  * @property {string} [publishedTimestamp] 含时区的完整发布时间，用于同日排序；日期字段仅用于展示。
  * @property {number} readingMinutes

@@ -1,5 +1,6 @@
 /** 路由与意图预加载复用同一动态 import，避免两套地址清单。 */
 export const pageLoaders = {
+  experiment: () => import('@/pages/experiments/ExperimentPage.vue'),
   resources: () => import('@/pages/resources/ResourcesPage.vue'),
   home: () => import('@/pages/home/HomePage.vue'),
   archive: () => import('@/pages/archive/ArchivePage.vue'),
@@ -8,6 +9,12 @@ export const pageLoaders = {
 };
 
 export const routes = [
+  {
+    path: '/experiments/:id',
+    name: 'experiment',
+    component: pageLoaders.experiment,
+    meta: { title: '视觉实验' },
+  },
   {
     path: '/resources',
     name: 'resources',

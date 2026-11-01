@@ -4,6 +4,7 @@
  * @property {string} id
  * @property {string} articleId
  * @property {string} articleSlug
+ * @property {string} [showcase] 独立交互作品标识。
  * @property {string} documentTitle
  * @property {'created'|'updated'} action
  * @property {string} occurredAt 带时区的 ISO 时间，展示和聚合统一使用 Asia/Shanghai。

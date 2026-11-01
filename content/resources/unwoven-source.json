@@ -1,0 +1,19 @@
+{
+  "id": "unwoven-source",
+  "name": "奶蛙 · UNWOVEN 视觉交互源码",
+  "category": "前端视觉效果",
+  "description": "满幅无边框影像、Canvas 丝带解体与惯性拖拽的独立 HTML 作品。",
+  "version": "满幅影像版",
+  "platform": "现代浏览器 / HTML + Canvas",
+  "format": "ZIP",
+  "url": "/downloads/unwoven-source.zip",
+  "source": "https://github.com/7alpaca7/signal-blog/tree/main/public/showcases/unwoven",
+  "instructions": "下载并解压后打开 HTML，无需 npm 或构建工具。素材来源与 README 已保留在原始 ZIP 中。四张图片从外部 cohub 作品地址加载，需要联网；图片未包含在源码包内，外部服务不可用时会显示失败提示。素材权利以原来源为准。",
+  "articles": [],
+  "preview": "/experiments/unwoven",
+  "embedUrl": "/showcases/unwoven/index.html",
+  "sizeLabel": "35,236 字节",
+  "sha256": "df5f0a826d76634d87c48d15d785693a5b5d939de0668e8e8a32c92c4af5794b",
+  "downloadLabel": "下载源码 ZIP ↓",
+  "localFile": true
+}

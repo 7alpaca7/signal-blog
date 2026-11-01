@@ -12,7 +12,7 @@ const search = ref('');
 const category = computed(() => String(route.query.category || ''));
 const options = computed(() => [
   { value: '', label: '全部资源', count: catalog.length },
-  ...['软件工具', '系统镜像', '开发资源', '其他文件'].map((value) => ({
+  ...['前端视觉效果', '软件工具', '系统镜像', '开发资源', '其他文件'].map((value) => ({
     value,
     label: value,
     count: catalog.filter((item) => item.category === value).length,
@@ -64,13 +64,24 @@ function selectCategory(/** @type {string} */ value) {
           </div>
           <div>
             <dt>文件大小 / SHA-256</dt>
-            <dd>动态源码包，以下载文件为准</dd>
+            <dd>
+              {{ selected.sizeLabel || '动态源码包，以下载文件为准'
+              }}<code v-if="selected.sha256" class="checksum">SHA-256: {{ selected.sha256 }}</code>
+            </dd>
           </div>
         </dl>
         <h3>使用说明</h3>
         <p>{{ selected.instructions }}</p>
-        <a class="download" :href="selected.url" target="_blank" rel="noopener noreferrer"
-          >前往 GitHub 下载 ZIP ↗</a
+        <RouterLink v-if="selected.preview" class="download" :to="selected.preview"
+          >在线体验 ↗</RouterLink
+        >
+        <a
+          class="download"
+          :href="selected.url"
+          :download="selected.localFile ? 'unwoven-source.zip' : undefined"
+          :target="selected.localFile ? undefined : '_blank'"
+          rel="noopener noreferrer"
+          >{{ selected.downloadLabel || '前往 GitHub 下载 ZIP ↗' }}</a
         ><a
           class="text-link source-link"
           :href="selected.source"
@@ -78,8 +89,14 @@ function selectCategory(/** @type {string} */ value) {
           rel="noopener noreferrer"
           >查看来源与 README ↗</a
         >
-        <p class="download-note">下载由 GitHub 提供，打开地址不代表文件已下载完成。</p>
-        <h3>相关文章</h3>
+        <p class="download-note">
+          {{
+            selected.localFile
+              ? '源码包由本站提供，外部图片需联网加载。'
+              : '下载由 GitHub 提供，打开地址不代表文件已下载完成。'
+          }}
+        </p>
+        <h3 v-if="selected.articles.length">相关文章</h3>
         <RouterLink
           v-for="slug in selected.articles"
           :key="slug"
@@ -359,6 +376,15 @@ dt {
 }
 dd {
   margin: 0;
+}
+.checksum {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 10px;
+  margin-top: 8px;
+}
+.download + .download {
+  margin-left: 12px;
 }
 .download {
   display: inline-block;

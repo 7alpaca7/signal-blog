@@ -38,6 +38,11 @@ export function parsePost(source, filename, { base = '/', imageSize = () => unde
     throw new Error('slug 必须为小写英文、数字和短横线。');
   if (!Array.isArray(meta.tags) || meta.tags.some((tag) => typeof tag !== 'string' || !tag.trim()))
     throw new Error('tags 必须是字符串数组。');
+  if (
+    meta.showcase !== undefined &&
+    (typeof meta.showcase !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(meta.showcase))
+  )
+    throw new Error('showcase 必须是安全的展示页标识。');
   const publishedAt = timestamp(meta.publishedAt, 'publishedAt');
   const revisions = meta.revisions ?? [];
   if (!Array.isArray(revisions)) throw new Error('revisions 必须是数组。');
@@ -127,6 +132,7 @@ export function parsePost(source, filename, { base = '/', imageSize = () => unde
     excerpt: meta.excerpt,
     category: meta.category,
     tags: meta.tags,
+    ...(meta.showcase ? { showcase: meta.showcase } : {}),
     publishedTimestamp: publishedAt,
     publishedAt: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Shanghai' }).format(
       new Date(publishedAt),
@@ -142,6 +148,7 @@ export function parsePost(source, filename, { base = '/', imageSize = () => unde
     id: `${slug}:${change.at}:${change.action}`,
     articleId: slug,
     articleSlug: slug,
+    ...(meta.showcase ? { showcase: meta.showcase } : {}),
     documentTitle: meta.title,
     occurredAt: change.at,
     summary: change.summary,

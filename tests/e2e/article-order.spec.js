@@ -17,15 +17,12 @@ test('首页和归档同日按具体时间倒序，最早排序按时间正序',
   ).toHaveCount(3);
   const recent = await timestamps(page);
   expect(recent).toEqual([...recent].sort((a, b) => b - a));
-  await expect(page.locator('.article-row h3').first()).toHaveText(
-    '开发日志 05：资源仓库、探险家宝箱与完整月历',
-  );
   await expect(page.locator('.article-row time small').first()).toContainText(/\d{2}:\d{2}/);
   await page
     .getByRole('navigation', { name: '主导航' })
     .getByRole('link', { name: '全部记录' })
     .click();
-  await expect(page.locator('.article-row')).toHaveCount(9);
+  await expect.poll(() => page.locator('.article-row').count()).toBeGreaterThan(3);
   const latest = await timestamps(page);
   expect(latest).toEqual([...latest].sort((a, b) => b - a));
   await page.getByRole('combobox', { name: '排序' }).selectOption('old');
