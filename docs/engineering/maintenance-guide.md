@@ -134,3 +134,5 @@ NAIWA 景深画廊位于 public/showcases/naiwa/，原始 HTML 和 README 原样
 冷启动入口：index.html 提供主脚本下载期间的静态启动提示与深色底色；main.js 不在挂载前等待 router.isReady，让 App 的可乐加载层先显示。App 挂载后等待初始路由解析、页面组件任务注册，再提交首屏就绪判断。这样首页懒加载下载期间已有反馈，不再在空白之后补播加载动画。
 
 全量页面资源策略（取代上方首屏与超时规则）：当前页面所有 img（含屏外）设为 eager，全部下载、解码及字体完成后才放行；不预载其他路由正文或 ZIP。图片/字体/正文失败记录到统一 error，加载层保留并提供重新加载，不再 6 秒自动关闭。独立作品不依赖 iframe load，也不再 12 秒放行：部署副本在 UNWOVEN 全部原图解码与 Canvas 初始化、NAIWA 纹理请求/图片解码/字体/首帧完成后 postMessage signal:showcase-ready；宿主只接受当前 iframe 窗口的消息。WebGL 不可用时仅在完整 DOM 降级图集可用后就绪。原始 ZIP 保持不变；embed=assets-v2 避免旧副本缺少握手。失败会阻止自动进入，直到用户重载成功。
+
+SimConv/SIMNet 笔记位于 content/posts/simconv-dynamic-receptive-field.md，2 张原论文架构配图位于 public/images/simconv/。保留公式疑点、手算与未核查实现的边界，原 PDF 链接指向公开阅读仓库中的已归档版本。发布时间为实际入库时间，完成日期沿用源笔记。
