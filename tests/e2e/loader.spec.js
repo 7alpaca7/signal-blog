@@ -50,3 +50,45 @@ test('正文已到达仍等待首屏图片，图片失败也能进入页面', as
   await expect(loader).toBeHidden();
   await expect(page.locator('main h1')).toBeFocused();
 });
+
+test('首页组件未下载时已经显示加载反馈，完成后最近记录与日历可用', async ({ page }) => {
+  let release;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/HomePage-*.js', async (route) => {
+    await gate;
+    await route.continue();
+  });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const loader = page.getByRole('dialog', { name: '小黄脸喝可乐开场动画' });
+  await expect(loader).toBeVisible();
+  await expect(loader.getByRole('button')).toBeDisabled();
+  await expect(page.locator('main h1')).toHaveCount(0);
+  await page.waitForTimeout(1000);
+  await expect(loader).toBeVisible();
+  release();
+  await expect(loader).toBeHidden();
+  await expect(
+    page.getByRole('region', { name: '最近的记录' }).locator('.article-row'),
+  ).toHaveCount(3);
+  await expect(page.getByRole('region', { name: '创作足迹', exact: true })).toBeVisible();
+  await expect(page.locator('.app-shell > div[inert]')).toHaveCount(0);
+});
+
+test('主脚本尚未下载时显示静态启动反馈', async ({ page }) => {
+  let release;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/assets/index-*.js', async (route) => {
+    await gate;
+    await route.continue();
+  });
+  await page.goto('/', { waitUntil: 'commit' });
+  await expect(page.locator('.boot-status')).toBeVisible();
+  await expect(page.locator('.boot-status')).toContainText('正在准备页面');
+  release();
+  await expect(page.locator('.boot-status')).toHaveCount(0);
+  await expect(page.getByRole('dialog', { name: '小黄脸喝可乐开场动画' })).toBeHidden();
+});

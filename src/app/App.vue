@@ -23,6 +23,8 @@ const pageRoot = ref(/** @type {HTMLElement|null} */ (null));
 const readiness = providePageReadiness(() => pageRoot.value);
 const contentReady = readiness.ready;
 onMounted(async () => {
+  // App 已先显示加载层；初始路由组件与页面任务挂载后才能判断首屏就绪。
+  await router.isReady();
   await nextTick();
   readiness.commit();
 });

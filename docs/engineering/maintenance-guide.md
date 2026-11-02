@@ -130,3 +130,5 @@ DEIM 笔记位于 content/posts/deim-improved-matching.md，5 张配图位于 pu
 NAIWA 景深画廊位于 public/showcases/naiwa/，原始 HTML 和 README 原样保留，源码 ZIP 为 public/downloads/naiwa-source.zip。记录 naiwa-atmospheric-gallery 对应入口 /experiments/naiwa（showcase: naiwa），分类“创意实验”；资源 naiwa-source 归入“前端视觉效果”。页面复用隔离 iframe，原作自身全屏画布无内部滚动条；展示标题从资源名称生成。6 张图片与 Three.js 为外部依赖，降级展示仍依赖图片网络可用。
 
 加载层由 shared/navigation/page-readiness.js 协调：App 在跨路径导航前开始新代次、路由完成后提交；useAsyncResource 自动登记正文/列表任务并在成功、错误、取消或卸载时释放。提交且任务归零后等待 DOM、首屏图片解码和字体，最多等待外部首屏资源 6 秒，屏外图片继续懒加载。InitialLoader 不再强制播放完整动作；RouteTransition 在实际就绪前循环可乐动画，准备完成后退出，不再以固定 1.8 秒解锁页面。作品页额外登记 iframe load，12 秒超时后放行并显示慢加载提示；iframe 内后续 WebGL/远程素材进度仍由作品负责，不宣称 iframe load 等于所有后续纹理就绪。错误页同样释放加载层；取消导航及迟到结果通过代次与清理回调隔离。
+
+冷启动入口：index.html 提供主脚本下载期间的静态启动提示与深色底色；main.js 不在挂载前等待 router.isReady，让 App 的可乐加载层先显示。App 挂载后等待初始路由解析、页面组件任务注册，再提交首屏就绪判断。这样首页懒加载下载期间已有反馈，不再在空白之后补播加载动画。
