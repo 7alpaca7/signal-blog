@@ -14,7 +14,6 @@ const skipButton = ref(/** @type {HTMLButtonElement|null} */ (null));
 const motion = useMotionPreference();
 const visible = ref(true);
 const phase = ref('等一小会儿');
-const completedCycle = ref(false);
 let elapsed = 0;
 const previousOverflow = document.documentElement.style.overflow;
 function restoreScroll() {
@@ -39,27 +38,19 @@ function paint() {
 function frame(/** @type {number} */ delta) {
   if (!visible.value) return;
   elapsed += delta;
-  // 首次开场保留一轮动作；不伪造加载百分比，内容就绪后始终允许用户跳过。
-  if (elapsed >= MOTION.cola.cycle) {
-    completedCycle.value = true;
-    if (props.ready) {
-      finish();
-      return;
-    }
-    elapsed %= MOTION.cola.cycle;
-  }
+  elapsed %= MOTION.cola.cycle;
   paint();
 }
 watch(
-  () => [props.ready, motion.active, completedCycle.value],
+  () => props.ready,
   () => {
-    if (props.ready && (!motion.active || completedCycle.value)) finish();
+    if (props.ready) finish();
   },
 );
 onMounted(() => {
   document.documentElement.style.overflow = 'hidden';
   paint();
-  if (props.ready && !motion.active) finish();
+  if (props.ready) finish();
   else skipButton.value?.focus({ preventScroll: true });
 });
 useMotionScope(root, frame);

@@ -1,6 +1,8 @@
 <script setup>
-import { computed, onMounted, onScopeDispose, ref } from 'vue';
+import { computed, onMounted, onScopeDispose, ref, watch } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
+
+import { usePageReadiness } from '@/shared/navigation/page-readiness.js';
 
 import { useResources } from '@/modules/resources/index.js';
 
@@ -11,6 +13,34 @@ const resource = computed(() =>
 );
 const frame = ref(/** @type {HTMLIFrameElement|null} */ (null));
 const loaded = ref(false);
+const readiness = usePageReadiness();
+let releaseFrame = () => {};
+let loadTimer = /** @type {ReturnType<typeof setTimeout>|undefined} */ (undefined);
+function finishFrame() {
+  clearTimeout(loadTimer);
+  loaded.value = true;
+  releaseFrame();
+}
+watch(
+  () => resource.value?.embedUrl,
+  (url) => {
+    clearTimeout(loadTimer);
+    releaseFrame();
+    loaded.value = false;
+    if (!url) return;
+    releaseFrame = readiness?.track() ?? (() => {});
+    // 外部 iframe 不保证完成加载，超时后让用户进入作品查看自身降级提示。
+    loadTimer = setTimeout(() => {
+      message.value = '作品加载较慢，可等待素材加载或稍后重试。';
+      finishFrame();
+    }, 12000);
+  },
+  { immediate: true },
+);
+onScopeDispose(() => {
+  clearTimeout(loadTimer);
+  releaseFrame();
+});
 const message = ref('');
 const contentHeight = ref(650);
 /** 沙箱 iframe 为不透明来源，只接受当前窗口的高度消息，不信任任意外部消息。 */
@@ -52,7 +82,7 @@ async function fullscreen() {
       allow="fullscreen"
       allowfullscreen
       referrerpolicy="no-referrer"
-      @load="loaded = true"
+      @load="finishFrame"
     />
     <p class="experiment-note">
       原作品独立运行 · 按作品内提示操作 · 图片来自外部素材地址，加载状态以作品内提示为准。

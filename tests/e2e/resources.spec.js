@@ -32,7 +32,7 @@ test('资源仓库搜索、空态、详情下载与文章关联形成闭环', as
 
 test('宝箱开合与小黄脸反馈独立，关闭动效仍能使用', async ({ page }) => {
   await page.goto('/resources');
-  await page.getByRole('button', { name: '跳过开场，进入博客 ↗' }).click();
+  await expect(page.getByRole('dialog', { name: '小黄脸喝可乐开场动画' })).toBeHidden();
   const chest = page.getByRole('button', { name: '打开像素宝箱' });
   await expect.poll(() => chest.locator('svg').getAttribute('style')).toMatch(/rotate\((?!0deg)/);
   await expect(chest.locator('svg > g').first()).toHaveAttribute('opacity', '0');

@@ -8,6 +8,7 @@ import { provideMotionScheduler } from '@/shared/motion/use-motion-scope.js';
 import { useMotionPreference } from '@/shared/motion/use-motion-preference.js';
 import InitialLoader from '@/shared/navigation/InitialLoader.vue';
 import RouteTransition from '@/shared/navigation/RouteTransition.vue';
+import { providePageReadiness } from '@/shared/navigation/page-readiness.js';
 
 import BlogLayout from './layouts/BlogLayout.vue';
 import { useRoutePrefetch } from './router/use-route-prefetch.js';
@@ -18,10 +19,12 @@ const router = useRouter();
 const motion = useMotionPreference();
 const prefetch = useRoutePrefetch();
 const opening = ref(true);
-const contentReady = ref(false);
+const pageRoot = ref(/** @type {HTMLElement|null} */ (null));
+const readiness = providePageReadiness(() => pageRoot.value);
+const contentReady = readiness.ready;
 onMounted(async () => {
   await nextTick();
-  contentReady.value = true;
+  readiness.commit();
 });
 async function completeOpening() {
   opening.value = false;
@@ -37,15 +40,19 @@ const direction = ref('forward');
 const transitionKey = ref(0);
 // 在懒加载路由组件前就给出点击反馈，避免下载完成后才开始播放转场。
 const removeBeforeHook = router.beforeEach((to, from) => {
-  if (opening.value || to.path === from.path || !motion.active) return;
+  if (to.path === from.path) return;
+  readiness.begin();
+  if (opening.value || !motion.active) return;
   direction.value = to.name === 'article' ? 'forward' : 'backward';
   transitionKey.value += 1;
   transitioning.value = true;
 });
 const removeAfterHook = router.afterEach((_to, _from, failure) => {
   if (failure) transitioning.value = false;
+  readiness.commit();
 });
 const removeErrorHook = router.onError(() => {
+  readiness.commit();
   transitioning.value = false;
 });
 watch(
@@ -65,7 +72,9 @@ onScopeDispose(() => {
   <div class="app-shell" :style="MOTION_CSS" :data-motion="motion.active ? 'on' : 'off'">
     <AmbientBackground :quiet="route.name === 'article'" :suspended="opening || transitioning" />
     <div
-      :inert="opening || undefined"
+      ref="pageRoot"
+      :inert="opening || transitioning || undefined"
+      :aria-busy="!contentReady"
       @pointerover="prefetch"
       @focusin="prefetch"
       @pointerdown="prefetch"
@@ -76,6 +85,7 @@ onScopeDispose(() => {
     <RouteTransition
       :key="transitionKey"
       :active="transitioning"
+      :ready="contentReady"
       :direction="direction"
       @complete="transitioning = false"
     />
