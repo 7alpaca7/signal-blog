@@ -43,3 +43,32 @@ test('NAIWA 记录、沙箱降级交互与原始源码下载', async ({ page, re
       .digest('hex'),
   ).toBe(resource.sha256);
 });
+
+test('作品未准备好时不接受父窗口伪造就绪，图片失败不自动退出', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route(/https:\/\/(cdn\.jsdelivr\.net|unpkg\.com)\//, (route) => route.abort());
+  let release;
+  let requested = false;
+  const gate = new Promise((resolve) => {
+    release = resolve;
+  });
+  await page.route('https://nailong-studio.github.io/**', async (route) => {
+    if (route.request().url().endsWith('/p-9.webp')) {
+      requested = true;
+      await gate;
+      await route.abort();
+    } else
+      await route.fulfill({
+        contentType: 'image/svg+xml',
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"/>',
+      });
+  });
+  await page.goto('/experiments/naiwa', { waitUntil: 'domcontentloaded' });
+  const loader = page.getByRole('dialog', { name: '小黄脸喝可乐开场动画' });
+  await expect.poll(() => requested).toBe(true);
+  await page.evaluate(() => window.postMessage({ type: 'signal:showcase-ready', error: '' }, '*'));
+  await expect(loader).toBeVisible();
+  release();
+  await expect(loader.getByRole('alert')).toContainText('加载失败');
+  await expect(loader.getByRole('button', { name: '重新加载页面 ↻' })).toBeEnabled();
+});

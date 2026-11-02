@@ -15,38 +15,29 @@ const frame = ref(/** @type {HTMLIFrameElement|null} */ (null));
 const loaded = ref(false);
 const readiness = usePageReadiness();
 let releaseFrame = () => {};
-let loadTimer = /** @type {ReturnType<typeof setTimeout>|undefined} */ (undefined);
-function finishFrame() {
-  clearTimeout(loadTimer);
-  loaded.value = true;
-  releaseFrame();
-}
 watch(
   () => resource.value?.embedUrl,
   (url) => {
-    clearTimeout(loadTimer);
     releaseFrame();
     loaded.value = false;
-    if (!url) return;
-    releaseFrame = readiness?.track() ?? (() => {});
-    // 外部 iframe 不保证完成加载，超时后让用户进入作品查看自身降级提示。
-    loadTimer = setTimeout(() => {
-      message.value = '作品加载较慢，可等待素材加载或稍后重试。';
-      finishFrame();
-    }, 12000);
+    if (url) releaseFrame = readiness?.track() ?? (() => {});
   },
   { immediate: true },
 );
-onScopeDispose(() => {
-  clearTimeout(loadTimer);
-  releaseFrame();
-});
+onScopeDispose(() => releaseFrame());
 const message = ref('');
 const contentHeight = ref(650);
 /** 沙箱 iframe 为不透明来源，只接受当前窗口的高度消息，不信任任意外部消息。 */
 function receiveHeight(/** @type {MessageEvent} */ event) {
-  if (event.source !== frame.value?.contentWindow || event.data?.type !== 'signal:showcase-height')
+  if (event.source !== frame.value?.contentWindow) return;
+  if (event.data?.type === 'signal:showcase-ready') {
+    if (typeof event.data.error !== 'string') return;
+    if (event.data.error) readiness?.fail(event.data.error.slice(0, 160));
+    else loaded.value = true;
+    releaseFrame();
     return;
+  }
+  if (event.data?.type !== 'signal:showcase-height') return;
   const height = event.data.height;
   if (typeof height === 'number' && Number.isFinite(height) && height >= 200 && height <= 50_000)
     contentHeight.value = Math.ceil(height);
@@ -74,6 +65,7 @@ async function fullscreen() {
     <p v-if="!loaded" role="status" class="loading">正在载入作品…</p>
     <p v-if="message" role="status">{{ message }}</p>
     <iframe
+      :key="resource.id"
       ref="frame"
       :src="resource.embedUrl"
       :style="{ '--experiment-height': `${contentHeight}px` }"
@@ -82,7 +74,6 @@ async function fullscreen() {
       allow="fullscreen"
       allowfullscreen
       referrerpolicy="no-referrer"
-      @load="finishFrame"
     />
     <p class="experiment-note">
       原作品独立运行 · 按作品内提示操作 · 图片来自外部素材地址，加载状态以作品内提示为准。

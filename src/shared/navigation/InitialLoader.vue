@@ -6,8 +6,11 @@ import { MOTION } from '@/shared/motion/tokens.js';
 import { useMotionScope } from '@/shared/motion/use-motion-scope.js';
 import { useMotionPreference } from '@/shared/motion/use-motion-preference.js';
 
-const props = defineProps({ ready: { type: Boolean, default: false } });
-const emit = defineEmits(['complete']);
+const props = defineProps({
+  ready: { type: Boolean, default: false },
+  error: { type: String, default: '' },
+});
+const emit = defineEmits(['complete', 'retry']);
 const root = ref(/** @type {HTMLElement|null} */ (null));
 const canvas = ref(/** @type {HTMLCanvasElement|null} */ (null));
 const skipButton = ref(/** @type {HTMLButtonElement|null} */ (null));
@@ -81,9 +84,14 @@ useMotionScope(root, frame);
         <div class="loader-dots" aria-hidden="true"><i /><i /><i /><i /></div>
       </div>
       <footer>
-        <span role="status">{{ phase }}</span
-        ><button ref="skipButton" type="button" :disabled="!ready" @click="finish">
-          {{ ready ? '跳过开场，进入博客 ↗' : '正在准备内容…' }}
+        <span :role="error ? 'alert' : 'status'">{{ error || '正在准备页面全部资源…' }}</span
+        ><button
+          ref="skipButton"
+          type="button"
+          :disabled="!ready && !error"
+          @click="error ? emit('retry') : finish()"
+        >
+          {{ error ? '重新加载页面 ↻' : ready ? '进入博客 ↗' : '等待资源加载…' }}
         </button>
       </footer>
     </section>
@@ -114,6 +122,7 @@ header span:first-child {
   font-weight: 700;
 }
 .loader-scene {
+  min-height: 0;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -152,6 +161,7 @@ i {
   background: var(--color-acid);
 }
 footer {
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -162,6 +172,10 @@ footer {
   background: var(--color-surface);
   font: 11px var(--font-mono);
   color: var(--color-muted);
+}
+footer > span {
+  max-width: min(700px, 85vw);
+  overflow-wrap: anywhere;
 }
 button {
   font-size: 11px;

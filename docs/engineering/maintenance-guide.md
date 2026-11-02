@@ -132,3 +132,5 @@ NAIWA 景深画廊位于 public/showcases/naiwa/，原始 HTML 和 README 原样
 加载层由 shared/navigation/page-readiness.js 协调：App 在跨路径导航前开始新代次、路由完成后提交；useAsyncResource 自动登记正文/列表任务并在成功、错误、取消或卸载时释放。提交且任务归零后等待 DOM、首屏图片解码和字体，最多等待外部首屏资源 6 秒，屏外图片继续懒加载。InitialLoader 不再强制播放完整动作；RouteTransition 在实际就绪前循环可乐动画，准备完成后退出，不再以固定 1.8 秒解锁页面。作品页额外登记 iframe load，12 秒超时后放行并显示慢加载提示；iframe 内后续 WebGL/远程素材进度仍由作品负责，不宣称 iframe load 等于所有后续纹理就绪。错误页同样释放加载层；取消导航及迟到结果通过代次与清理回调隔离。
 
 冷启动入口：index.html 提供主脚本下载期间的静态启动提示与深色底色；main.js 不在挂载前等待 router.isReady，让 App 的可乐加载层先显示。App 挂载后等待初始路由解析、页面组件任务注册，再提交首屏就绪判断。这样首页懒加载下载期间已有反馈，不再在空白之后补播加载动画。
+
+全量页面资源策略（取代上方首屏与超时规则）：当前页面所有 img（含屏外）设为 eager，全部下载、解码及字体完成后才放行；不预载其他路由正文或 ZIP。图片/字体/正文失败记录到统一 error，加载层保留并提供重新加载，不再 6 秒自动关闭。独立作品不依赖 iframe load，也不再 12 秒放行：部署副本在 UNWOVEN 全部原图解码与 Canvas 初始化、NAIWA 纹理请求/图片解码/字体/首帧完成后 postMessage signal:showcase-ready；宿主只接受当前 iframe 窗口的消息。WebGL 不可用时仅在完整 DOM 降级图集可用后就绪。原始 ZIP 保持不变；embed=assets-v2 避免旧副本缺少握手。失败会阻止自动进入，直到用户重载成功。

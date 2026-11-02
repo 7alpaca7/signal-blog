@@ -8,9 +8,10 @@ import { useMotionScope } from '@/shared/motion/use-motion-scope.js';
 const props = defineProps({
   active: { type: Boolean, default: false },
   ready: { type: Boolean, default: false },
+  error: { type: String, default: '' },
   direction: { type: String, default: 'forward' },
 });
-const emit = defineEmits(['complete']);
+const emit = defineEmits(['complete', 'retry']);
 const root = ref(/** @type {HTMLElement|null} */ (null));
 const canvas = ref(/** @type {HTMLCanvasElement|null} */ (null));
 const phase = ref('举起可乐');
@@ -58,7 +59,9 @@ onMounted(paint);
         :data-phase="phase"
         aria-label="小黄脸喝可乐转场"
       />
-      <span>喝口可乐，正在准备页面。</span>
+      <span v-if="error" role="alert">{{ error }}</span>
+      <span v-else>喝口可乐，正在准备页面全部资源。</span>
+      <button v-if="error" type="button" @click="emit('retry')">重新加载页面 ↻</button>
       <small>COLA BREAK / KEEP EXPLORING_</small>
     </div>
   </Transition>

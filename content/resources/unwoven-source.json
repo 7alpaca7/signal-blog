@@ -11,7 +11,7 @@
   "instructions": "下载并解压后打开 HTML，无需 npm 或构建工具。素材来源与 README 已保留在原始 ZIP 中。四张图片从外部 cohub 作品地址加载，需要联网；图片未包含在源码包内，外部服务不可用时会显示失败提示。素材权利以原来源为准。",
   "articles": [],
   "preview": "/experiments/unwoven",
-  "embedUrl": "/showcases/unwoven/index.html?embed=height-v1",
+  "embedUrl": "/showcases/unwoven/index.html?embed=assets-v2",
   "sizeLabel": "35,236 字节",
   "sha256": "df5f0a826d76634d87c48d15d785693a5b5d939de0668e8e8a32c92c4af5794b",
   "downloadLabel": "下载源码 ZIP ↓",

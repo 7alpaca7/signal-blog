@@ -34,22 +34,42 @@ describe('页面加载就绪协调', () => {
     await flushPromises();
     expect(state.ready.value).toBe(false);
   });
-  it('首屏图片失败后放行，屏外懒加载图片不阻塞', async () => {
+  it('屏外图片也主动加载，全部解码后才就绪', async () => {
     const root = document.createElement('div');
     root.innerHTML = '<main><img><img></main>';
     const [first, below] = root.querySelectorAll('img');
-    Object.defineProperty(first, 'complete', { value: false });
-    first.getBoundingClientRect = () => ({ top: 20, bottom: 120 });
+    for (const image of [first, below]) {
+      Object.defineProperty(image, 'complete', { value: false });
+      Object.defineProperty(image, 'naturalWidth', { value: 100 });
+    }
     below.getBoundingClientRect = () => ({ top: 100000, bottom: 100100 });
     const state = createPageReadiness(() => root);
     state.commit();
     await flushPromises();
-    expect(state.ready.value).toBe(false);
     expect(first.loading).toBe('eager');
-    expect(below.loading).not.toBe('eager');
-    first.dispatchEvent(new Event('error'));
+    expect(below.loading).toBe('eager');
+    first.dispatchEvent(new Event('load'));
+    await flushPromises();
+    expect(state.ready.value).toBe(false);
+    below.dispatchEvent(new Event('load'));
     await flushPromises();
     expect(state.ready.value).toBe(true);
+    state.dispose();
+  });
+  it('图片失败保持加载层并返回错误，不当作加载完成', async () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<img alt="参考图">';
+    const image = root.querySelector('img');
+    Object.defineProperty(image, 'complete', { value: false });
+    const state = createPageReadiness(() => root);
+    state.commit();
+    await flushPromises();
+    image.dispatchEvent(new Event('error'));
+    await flushPromises();
+    expect(state.ready.value).toBe(false);
+    expect(state.error.value).toContain('参考图加载失败');
+    state.begin();
+    expect(state.error.value).toBe('');
     state.dispose();
   });
 });

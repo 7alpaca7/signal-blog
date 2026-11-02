@@ -22,6 +22,10 @@ const opening = ref(true);
 const pageRoot = ref(/** @type {HTMLElement|null} */ (null));
 const readiness = providePageReadiness(() => pageRoot.value);
 const contentReady = readiness.ready;
+const loadingError = readiness.error;
+function retryPage() {
+  window.location.reload();
+}
 onMounted(async () => {
   // App 已先显示加载层；初始路由组件与页面任务挂载后才能判断首屏就绪。
   await router.isReady();
@@ -83,12 +87,19 @@ onScopeDispose(() => {
     >
       <BlogLayout><RouterView /></BlogLayout>
     </div>
-    <InitialLoader :ready="contentReady" @complete="completeOpening" />
+    <InitialLoader
+      :ready="contentReady"
+      :error="loadingError"
+      @retry="retryPage"
+      @complete="completeOpening"
+    />
     <RouteTransition
       :key="transitionKey"
       :active="transitioning"
       :ready="contentReady"
+      :error="loadingError"
       :direction="direction"
+      @retry="retryPage"
       @complete="transitioning = false"
     />
   </div>

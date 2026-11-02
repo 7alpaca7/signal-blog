@@ -11,7 +11,7 @@
   "instructions": "解压后使用本地 HTTP 服务打开 index.html，无需 npm 或构建。6 张图片来自 NaiLoong-Universe 在线地址，Three.js 通过 CDN 加载，素材不包含在 ZIP 内。需联网；CDN 或 WebGL 受限时原作品提供 DOM 图片降级展示。鼠标滚轮、触摸拖动、方向键或页面按钮切换作品。外部素材权利以来源为准。",
   "articles": [],
   "preview": "/experiments/naiwa",
-  "embedUrl": "/showcases/naiwa/index.html",
+  "embedUrl": "/showcases/naiwa/index.html?embed=assets-v2",
   "sizeLabel": "14,503 字节",
   "sha256": "9310a43311cd8c29b3dd9a024ee94f38e3c148627a52f242590256ba11d1eda3",
   "downloadLabel": "下载源码 ZIP ↓",

@@ -28,15 +28,23 @@ test('减少动态效果时依然等待实际内容，不强制播放动作', as
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });
 
-test('正文已到达仍等待首屏图片，图片失败也能进入页面', async ({ page }) => {
-  await page.setViewportSize({ width: 1200, height: 1800 });
+test('屏外配图未完成不退场，失败提示重新加载而不是自动放行', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  // 固定其他外部参考图，专门检验屏外备选构图的失败路径。
+  await page.route('https://**/*', async (route) => {
+    if (route.request().resourceType() === 'image')
+      await route.fulfill({
+        contentType: 'image/svg+xml',
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="yellow"/></svg>',
+      });
+    else await route.continue();
+  });
   let release;
   let requested = false;
   const gate = new Promise((resolve) => {
     release = resolve;
   });
-  await page.route('**/images/risograph-milk-frog/main.png', async (route) => {
+  await page.route('**/images/risograph-milk-frog/alternative.png', async (route) => {
     requested = true;
     await gate;
     await route.abort();
@@ -45,10 +53,12 @@ test('正文已到达仍等待首屏图片，图片失败也能进入页面', as
   await expect.poll(() => requested).toBe(true);
   const loader = page.getByRole('dialog', { name: '小黄脸喝可乐开场动画' });
   await expect(loader).toBeVisible();
-  await expect(page.locator('main h1')).toContainText('当代 Risograph');
+  await page.waitForTimeout(6500);
+  await expect(loader).toBeVisible();
   release();
-  await expect(loader).toBeHidden();
-  await expect(page.locator('main h1')).toBeFocused();
+  await expect(loader.getByRole('alert')).toContainText('加载失败');
+  await expect(loader.getByRole('button', { name: '重新加载页面 ↻' })).toBeEnabled();
+  await expect(loader).toBeVisible();
 });
 
 test('首页组件未下载时已经显示加载反馈，完成后最近记录与日历可用', async ({ page }) => {

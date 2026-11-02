@@ -2,16 +2,17 @@ import { inject, nextTick, onScopeDispose, provide, ref, watch } from 'vue';
 
 /** @type {import('vue').InjectionKey<ReturnType<typeof createPageReadiness>>} */
 const PAGE_READINESS = Symbol('page-readiness');
-const ASSET_WAIT_MS = 6000;
-
 /**
- * 等待首屏图片、字体完成或失败；不等待屏外懒加载图片，也不让外部资源永久阻塞导航。
+ * 当前页面全部图片主动加载并解码，字体完成后才就绪；失败返回明确错误，不按超时放行。
  * @param {HTMLElement|null} root
  * @param {AbortSignal} signal
+ * @param {(message: string) => void} onFailure
+ * @returns {Promise<string[]>}
  */
-async function waitForFirstScreen(root, signal) {
-  if (!root || signal.aborted) return;
-  await new Promise((resolve) => {
+async function waitForPageAssets(root, signal, onFailure) {
+  if (!root || signal.aborted) return [];
+  return new Promise((resolve) => {
+    const failures = /** @type {string[]} */ ([]);
     const cleanups = /** @type {Array<() => void>} */ ([]);
     let remaining = 1;
     let finished = false;
@@ -19,7 +20,7 @@ async function waitForFirstScreen(root, signal) {
       if (finished) return;
       finished = true;
       cleanups.forEach((cleanup) => cleanup());
-      resolve(undefined);
+      resolve(failures);
     };
     const done = () => {
       remaining -= 1;
@@ -27,23 +28,25 @@ async function waitForFirstScreen(root, signal) {
     };
     signal.addEventListener('abort', finish, { once: true });
     cleanups.push(() => signal.removeEventListener('abort', finish));
-    const timer = setTimeout(finish, ASSET_WAIT_MS);
-    cleanups.push(() => clearTimeout(timer));
-    for (const image of root.querySelectorAll('main img')) {
+    for (const image of root.querySelectorAll('img')) {
       if (!(image instanceof HTMLImageElement)) continue;
-      const bounds = image.getBoundingClientRect();
-      if (bounds.top >= innerHeight || bounds.bottom <= 0) continue;
       remaining += 1;
       let settled = false;
-      const loaded = () => {
+      const loaded = async () => {
         if (settled) return;
         settled = true;
         image.removeEventListener('load', loaded);
         image.removeEventListener('error', loaded);
-        // decode 保证已下载图片可以呈现；失败也放行，由正文显示原有错误状态。
-        Promise.resolve(image.decode?.())
-          .catch(() => {})
-          .finally(done);
+        try {
+          if (!image.naturalWidth) throw new Error('image unavailable');
+          await image.decode?.();
+        } catch {
+          const message = `${image.alt || '页面图片'}加载失败`;
+          failures.push(message);
+          if (!signal.aborted) onFailure(message);
+        } finally {
+          done();
+        }
       };
       cleanups.push(() => {
         image.removeEventListener('load', loaded);
@@ -52,11 +55,15 @@ async function waitForFirstScreen(root, signal) {
       image.addEventListener('load', loaded, { once: true });
       image.addEventListener('error', loaded, { once: true });
       image.loading = 'eager';
-      if (image.complete) loaded();
+      if (image.complete) void loaded();
     }
     remaining += 1;
     Promise.resolve(document.fonts?.ready)
-      .catch(() => {})
+      .then(() => {
+        if (document.fonts && [...document.fonts].some((font) => font.status === 'error'))
+          failures.push('页面字体加载失败');
+      })
+      .catch(() => failures.push('页面字体加载失败'))
       .finally(done);
     done();
   });
@@ -69,16 +76,22 @@ async function waitForFirstScreen(root, signal) {
 export function createPageReadiness(getRoot) {
   const ready = ref(false);
   const pending = ref(0);
+  const error = ref('');
   const committed = ref(false);
   let epoch = 0;
   let disposed = false;
   let controller = new AbortController();
   function begin() {
     epoch += 1;
+    error.value = '';
     controller.abort();
     ready.value = false;
     pending.value = 0;
     committed.value = false;
+  }
+  function fail(/** @type {string} */ message) {
+    error.value = message;
+    ready.value = false;
   }
   function commit() {
     committed.value = true;
@@ -102,9 +115,11 @@ export function createPageReadiness(getRoot) {
       const signal = controller.signal;
       if (count || !mounted) return;
       await nextTick();
-      await waitForFirstScreen(getRoot(), signal);
+      const failures = await waitForPageAssets(getRoot(), signal, fail);
       await nextTick();
-      if (!signal.aborted && !disposed && !pending.value) ready.value = true;
+      if (signal.aborted || disposed || pending.value) return;
+      if (failures.length) fail(failures.join('；'));
+      if (!error.value) ready.value = true;
     },
     { flush: 'post' },
   );
@@ -113,7 +128,7 @@ export function createPageReadiness(getRoot) {
     controller.abort();
     stop();
   }
-  return { ready, pending, begin, commit, track, dispose };
+  return { ready, pending, error, fail, begin, commit, track, dispose };
 }
 
 /** App 装配页面加载协调器。 */

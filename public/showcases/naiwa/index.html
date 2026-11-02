@@ -350,9 +350,22 @@ class GalleryExperience{
  }
 
 }
+// 博客部署适配：全部图片解码、纹理请求与首帧完成后，通知隔离的父页面。
+let blogTextureFailed=false;
+async function reportBlogReady(){
+ try{
+  await Promise.all(backup.map(image=>image.decode()));
+  await document.fonts.ready;
+  if(blogTextureFailed)throw new Error('texture unavailable');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>window.parent.postMessage({type:'signal:showcase-ready',error:''},'*')));
+ }catch(error){window.parent.postMessage({type:'signal:showcase-ready',error:'画廊图片、纹理或字体加载失败，请重试'},'*')}
+}
 try{
   for(const url of ['https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js','https://unpkg.com/three@0.180.0/build/three.module.js']){try{THREE=await import(url);break}catch(error){console.warn('Three CDN unavailable:',url,error)}}
-  if(!THREE)throw new Error('Three.js 未加载');experience=new GalleryExperience();
+  if(!THREE)throw new Error('Three.js 未加载');
+  THREE.DefaultLoadingManager.onLoad=reportBlogReady;
+  THREE.DefaultLoadingManager.onError=()=>{blogTextureFailed=true};
+  experience=new GalleryExperience();
  }catch(e){
    console.error(e);
    showBackup();
@@ -374,6 +387,8 @@ try{
      requestAnimationFrame(fallbackLoop);
    }
    requestAnimationFrame(fallbackLoop);
+   blogTextureFailed=false;
+   void reportBlogReady();
  }
 </script>
 </body>

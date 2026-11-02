@@ -37,6 +37,7 @@ export function useAsyncResource(getKey, loader) {
       if (current !== sequence || controller.signal.aborted) return;
       status.value = 'error';
       error.value = cause instanceof Error ? cause.message : '暂时无法读取内容，请重试。';
+      readiness?.fail(error.value);
     } finally {
       complete();
     }
