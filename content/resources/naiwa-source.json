@@ -1,0 +1,19 @@
+{
+  "id": "naiwa-source",
+  "name": "奶蛙 · NAIWA 景深画廊源码",
+  "category": "前端视觉效果",
+  "description": "沿 Z 轴穿行的 WebGL 景深画廊，结合收敛滚轮惯性、透视边界约束、风迹粒子与氛围着色器。",
+  "version": "景深增强 · 冲量与边界收敛版",
+  "platform": "现代浏览器 / Three.js + WebGL",
+  "format": "ZIP",
+  "url": "/downloads/naiwa-source.zip",
+  "source": "https://github.com/7alpaca7/signal-blog/tree/main/public/showcases/naiwa",
+  "instructions": "解压后使用本地 HTTP 服务打开 index.html，无需 npm 或构建。6 张图片来自 NaiLoong-Universe 在线地址，Three.js 通过 CDN 加载，素材不包含在 ZIP 内。需联网；CDN 或 WebGL 受限时原作品提供 DOM 图片降级展示。鼠标滚轮、触摸拖动、方向键或页面按钮切换作品。外部素材权利以来源为准。",
+  "articles": [],
+  "preview": "/experiments/naiwa",
+  "embedUrl": "/showcases/naiwa/index.html",
+  "sizeLabel": "14,503 字节",
+  "sha256": "9310a43311cd8c29b3dd9a024ee94f38e3c148627a52f242590256ba11d1eda3",
+  "downloadLabel": "下载源码 ZIP ↓",
+  "localFile": true
+}

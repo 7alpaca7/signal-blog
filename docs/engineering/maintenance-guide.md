@@ -126,3 +126,5 @@ MaDiNet 笔记位于 content/posts/madinet-mamba-diffusion-sar.md，3 张论文�
 作品展示滚动：部署版 UNWOVEN 注入 ResizeObserver 高度桥，测量 .site-shell 自然高度并发送 signal:showcase-height；ExperimentPage 验证 event.source 为当前 iframe，校验数值范围后调整 CSS 高度。普通展示只由外层页面滚动，全屏 iframe 使用 100dvh 并保留内部滚动。部署副本覆盖 min-height:100vh 避免高度反馈无法缩小；原始 ZIP 完全不改。桥接 RAF/observer/listener 与宿主消息监听都有清理路径。
 
 DEIM 笔记位于 content/posts/deim-improved-matching.md，5 张配图位于 public/images/deim/。源自文献笔记工作区的最新版，保留论文图裁取、自绘教学图和公式复算图的来源说明；论文链接使用 CVF 官方 PDF。发布时间为实际入库时间，完成日期保留原笔记记录，公式通过统一 KaTeX 内容管线渲染。
+
+NAIWA 景深画廊位于 public/showcases/naiwa/，原始 HTML 和 README 原样保留，源码 ZIP 为 public/downloads/naiwa-source.zip。记录 naiwa-atmospheric-gallery 对应入口 /experiments/naiwa（showcase: naiwa），分类“创意实验”；资源 naiwa-source 归入“前端视觉效果”。页面复用隔离 iframe，原作自身全屏画布无内部滚动条；展示标题从资源名称生成。6 张图片与 Three.js 为外部依赖，降级展示仍依赖图片网络可用。

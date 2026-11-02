@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e7e5d5">
+<meta name="description" content="奶蛙艺术宇宙：滚动驱动的三维景深画廊。基于公开技术原理独立实现。">
+<title>NAIWA — A WALK THROUGH MOODS</title>
+<style>
+:root{--ink:#30332f;--faint:rgba(41,46,42,.58);--line:rgba(42,46,42,.22);--background:#e7e5d5;font-family:Arial,"PingFang SC","Microsoft Yahei",sans-serif;font-synthesis:none;-webkit-font-smoothing:antialiased}
+*,*::before,*::after{box-sizing:border-box}html,body{height:100%;width:100%;margin:0;overflow:hidden}body{background:var(--background);color:var(--ink);overscroll-behavior:none}button,a{color:inherit}a{text-decoration:none}button{font:inherit}button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:5px}
+#webgl{position:fixed;inset:0;touch-action:none;z-index:0}#webgl canvas{display:block;width:100%;height:100%}
+/* Animated DOM fallback for WebGL / cross-origin image limitations */
+#image-backup{display:none;position:fixed;inset:0;pointer-events:none;z-index:1;perspective:850px;transform-style:preserve-3d}#image-backup img{position:absolute;top:50%;left:50%;width:auto;height:66vh;max-width:56vw;object-fit:contain;opacity:0;transform:translate(-50%,-50%);transform-origin:50% 50%;backface-visibility:hidden;will-change:transform,opacity;transition:opacity .10s linear}body.backup #image-backup{display:block}
+#grain{position:fixed;inset:0;pointer-events:none;z-index:3;opacity:.13;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.68' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23000' filter='url(%23noise)' d='M0 0h180v180H0z' opacity='.18'/%3E%3C/svg%3E")}
+#interface{position:fixed;inset:0;z-index:5;pointer-events:none}#interface button,#interface a{pointer-events:auto}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;position:absolute;left:34px;right:34px;top:30px;text-transform:uppercase;letter-spacing:.12em;font-size:10px;font-weight:600}.top strong{font-weight:750;letter-spacing:.17em}.top .sep{opacity:.35;padding:0 8px}.links{display:flex;gap:25px}.links a:hover{text-decoration:underline;text-underline-offset:4px}
+.info{position:absolute;top:49%;transform:translateY(-50%);min-width:110px}.info.left{left:6.5%}.info.right{right:6.5%}.index{font-size:10px;font-weight:700;letter-spacing:.1em;margin:0 0 10px}.descriptor{font-size:9px;letter-spacing:.11em;font-weight:700;margin:0 0 13px;max-width:115px;line-height:1.65;text-transform:uppercase}.swatch{width:12px;height:12px;border-radius:100%;box-shadow:0 0 0 1px rgba(0,0,0,.07)}.info dl{display:grid;gap:5px;margin:0;font-size:9px;font-weight:650;letter-spacing:.04em}.info dl div{display:grid;grid-template-columns:35px 95px;gap:6px}.info dt{opacity:.53}.info dd{margin:0}
+.foot{position:absolute;bottom:31px;left:34px;right:34px;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:12px}.label{max-width:250px}.label .sub{font-size:8px;letter-spacing:.17em;font-weight:700;margin:0 0 9px}.label h1{font-family:Georgia,"Noto Serif SC","Songti SC",serif;font-size:clamp(20px,1.9vw,28px);font-weight:400;line-height:1.25;letter-spacing:.01em;margin:0 0 8px}.label .detail{font-size:10px;line-height:1.6;color:var(--faint);margin:0}.scroll-prompt{align-self:end;font-size:9px;letter-spacing:.16em;font-weight:700;text-align:center;white-space:nowrap}.scroll-prompt .arrow{display:block;font-size:20px;font-weight:400;margin-top:4px;animation:drift 2.3s ease-in-out infinite}.pager{justify-self:end;display:flex;align-items:center;gap:16px;font-size:10px;font-weight:700;letter-spacing:.1em}.pager button{background:none;border:0;cursor:pointer;padding:12px 2px;font-size:10px;font-weight:700;letter-spacing:.09em}.pager button:disabled{opacity:.27;cursor:default}.pager span{min-width:58px;text-align:center}.rail{position:absolute;top:50%;transform:translateY(-50%);right:26px;display:flex;flex-direction:column;align-items:center;gap:15px}.rail button{border:0;border-radius:100%;width:5px;height:5px;background:currentColor;opacity:.20;cursor:pointer;padding:0;transition:transform .4s,opacity .4s}.rail button.active{opacity:.86;transform:scale(1.65)}
+#status{position:fixed;z-index:15;left:50%;bottom:105px;transform:translateX(-50%);padding:9px 14px;background:rgba(30,32,30,.88);color:white;font-size:11px;max-width:85vw;line-height:1.6;text-align:center;opacity:0;pointer-events:none;transition:opacity .25s}#status.visible{opacity:1}
+@keyframes drift{0%,100%{transform:translateY(-2px)}50%{transform:translateY(6px)}}
+@media(max-width:850px){.top{left:20px;right:20px;top:20px;font-size:9px}.links{gap:12px}.info.left{left:18px;top:39%}.info.right{right:18px;top:39%}.info{min-width:0}.info dl{font-size:8px}.info dl div{grid-template-columns:26px 48px;gap:3px}.descriptor{font-size:8px;max-width:60px;overflow-wrap:anywhere}.foot{left:20px;right:20px;bottom:22px;grid-template-columns:1fr 1fr;row-gap:8px}.label h1{font-size:22px}.label .detail{font-size:9px}.scroll-prompt{grid-column:1/-1;grid-row:1;justify-self:center;font-size:8px}.scroll-prompt .arrow{display:none}.rail{right:18px;top:auto;bottom:112px;transform:none;flex-direction:row;gap:12px}.pager{grid-column:2}.label{grid-column:1}#image-backup img{height:58vh;max-width:70vw}}
+@media(max-width:490px){.top .links a:nth-child(2){display:none}.info.left,.info.right{top:39%}.info.left{left:11px}.info.right{right:11px}.info dl div{grid-template-columns:24px 45px}.info .descriptor{max-width:56px}.foot{bottom:15px}.label h1{font-size:19px}.label .detail{max-width:160px}.pager{gap:9px}.pager button{font-size:9px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="webgl" aria-hidden="true"></div>
+<div id="image-backup" aria-hidden="true"></div>
+<div id="grain" aria-hidden="true"></div>
+<div id="interface">
+  <header class="top"><a href="https://nailong-studio.github.io/NaiLoong-Universe/#halls" target="_blank" rel="noopener"><strong>NAIWA</strong><span class="sep">/</span>THE MOOD ARCHIVE</a><nav class="links"><a href="https://tympanus.net/Tutorials/DepthGallery/" target="_blank" rel="noopener">REFERENCE</a><a href="https://nailong-studio.github.io/NaiLoong-Universe/#halls" target="_blank" rel="noopener">THE COLLECTION</a></nav></header>
+  <aside class="info left" aria-live="polite"><p id="index" class="index">01 / 06</p><p id="descriptor" class="descriptor">THE UMBRELLA</p><div id="swatch" class="swatch"></div></aside>
+  <aside class="info right" aria-live="polite"><dl><div><dt>HEX</dt><dd id="hex">#E7E5D5</dd></div><div><dt>RGB</dt><dd id="rgb">231,229,213</dd></div><div><dt>CMYK</dt><dd id="cmyk">0 1 8 9</dd></div><div><dt>MOOD</dt><dd id="mood">SKY</dd></div></dl></aside>
+  <footer class="foot"><div class="label" aria-live="polite"><p id="sub" class="sub">A STUDY IN DEPTH — NO. 01</p><h1 id="title">伞下的午后</h1><p id="detail" class="detail">让画面停留片刻，等风从中经过。</p></div><div class="scroll-prompt">SCROLL TO WANDER <span class="arrow">↓</span></div><nav class="pager" aria-label="画廊导航"><button id="previous" type="button" aria-label="上一幅作品">PREV</button><span id="count">01 — 06</span><button id="next" type="button" aria-label="下一幅作品">NEXT</button></nav></footer>
+  <nav id="rail" class="rail" aria-label="选择作品"></nav>
+</div>
+<div id="status" role="status" aria-live="polite"></div>
+<noscript><p style="position:fixed;bottom:0;background:white;padding:15px;z-index:50">请启用 JavaScript 观看三维画廊。</p></noscript>
+<script type="module">
+/**
+ * INDEPENDENT RE-IMPLEMENTATION (2026).
+ * Studied mechanisms: depth stack, damped scroll, velocity breath,
+ * procedural mood shader, Catmull-Rom wind, tapered tube and sparkle head.
+ * Does not import, copy, extend or modify the original author's repository.
+ * Artwork URLs: NaiLoong-Universe official image collection.
+ */
+const ART_BASE = 'https://nailong-studio.github.io/NaiLoong-Universe/assets/';
+const DATA = [
+  {file:'p-03.webp',name:'伞下的午后',en:'THE UMBRELLA',text:'让画面停留片刻，等风从中经过。',mood:'SKY BLUE',bg:'#dce7e7',c1:'#bad4ed',c2:'#c7c3ac',x:-0.55},
+  {file:'p-04.webp',name:'凝视自己',en:'THE PORTRAIT',text:'在静默的注视里寻找另一种回答。',mood:'JADE GREEN',bg:'#e7e3c7',c1:'#b7cfc3',c2:'#e2b6a7',x:0.55},
+  {file:'p-10.webp',name:'金色寓言',en:'THE GOLDEN HOUR',text:'金色的记忆沿着光线缓缓展开。',mood:'AMBER',bg:'#e8dbbc',c1:'#e9ba71',c2:'#c7b49a',x:-0.32},
+  {file:'p-12.webp',name:'林间午后',en:'THE GARDEN',text:'风经过叶间，留下不紧不慢的时间。',mood:'BOTANICAL',bg:'#d8dec7',c1:'#a5c6b1',c2:'#d7c1a2',x:0.42},
+  {file:'p-07.webp',name:'温柔加冕',en:'THE CORONATION',text:'郑重其事地，庆祝每一次平凡的相遇。',mood:'CHAMPAGNE',bg:'#e9d8c6',c1:'#d1a88b',c2:'#e3caac',x:-0.55},
+  {file:'p-9.webp',name:'远方相遇',en:'THE MIRAGE',text:'走到下一幕，天空又换了一种颜色。',mood:'TANGERINE',bg:'#e7c7ad',c1:'#dc967a',c2:'#e2b46a',x:0.28},
+];
+const N=DATA.length, $=id=>document.getElementById(id), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),mix=(a,b,t)=>a+(b-a)*t;
+const ease=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+const preferReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// 动效参数：保留 5.40 景深间距和进出场倾斜，收紧滚轮冲量与回弹；按透视视口约束图片边界。
+const MOTION={
+  depthGap:5.40,        // 旧版 3.25 -> 5.40，增加 66% 空间距离
+  cameraDistance:4.80, // 当前图片处于阅读位置时的相机距离
+  wheelToDepth:.00114, // 放慢单位滚轮对应的章节进度，拉长穿行的实际体验
+  mouseParallax:.16,
+  entryTilt:.38,       // radians ≈ 22°（远端渐入，中心逐渐归正）
+  exitTilt:.46,        // radians ≈ 26°（近端离场）
+  velocityZoom:.075,   // 限制高速滚动对图像的放大，避免冲出屏幕
+  travelEase:4.25,     // 相机跟随速度
+  poseStiffness:52,
+  poseDamping:15.0,    // 接近临界阻尼：平滑跟随，不再出现大幅过冲
+};
+const telemetry={target:0,current:0,velocity:0,drift:0,mouseX:0,mouseY:0,px:0,py:0,prev:0,lastTime:0,active:-1,pointerY:null,impulse:0,direction:1};
+let THREE,experience=null,warningTimeout;
+function notice(str){$('status').textContent=str;$('status').classList.add('visible');clearTimeout(warningTimeout);warningTimeout=setTimeout(()=>$('status').classList.remove('visible'),6000)}
+function select(i){const next=clamp(i,0,N-1);if(next!==telemetry.target){telemetry.direction=Math.sign(next-telemetry.current)||1;telemetry.impulse=Math.max(telemetry.impulse,.24)}telemetry.target=next}
+function scrollBy(delta){if(!delta)return;const d=clamp(delta* MOTION.wheelToDepth,-.52,.52);telemetry.target=clamp(telemetry.target+d,0,N-1);telemetry.drift=clamp(telemetry.drift+delta*.00065,-.35,.35);telemetry.direction=Math.sign(delta);telemetry.impulse=clamp(telemetry.impulse+Math.abs(delta)*.00125,0,.42)}
+addEventListener('wheel',e=>{if(e.ctrlKey)return;e.preventDefault();scrollBy(e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?innerHeight:1))},{passive:false});
+addEventListener('pointermove',e=>{telemetry.mouseX=e.clientX/innerWidth*2-1;telemetry.mouseY=1-e.clientY/innerHeight*2},{passive:true});
+$('webgl').addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){telemetry.pointerY=e.clientY;$('webgl').setPointerCapture(e.pointerId)}});
+$('webgl').addEventListener('pointermove',e=>{if(e.pointerType==='touch'&&telemetry.pointerY!==null){scrollBy((telemetry.pointerY-e.clientY)*2.9);telemetry.pointerY=e.clientY}});
+['pointerup','pointercancel'].forEach(t=>$('webgl').addEventListener(t,()=>telemetry.pointerY=null));
+$('previous').onclick=()=>select(Math.round(telemetry.target)-1);
+$('next').onclick=()=>select(Math.round(telemetry.target)+1);
+addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName||''))return;const f=['ArrowDown','ArrowRight','PageDown',' '].includes(e.key),b=['ArrowUp','ArrowLeft','PageUp'].includes(e.key);if(f||b){e.preventDefault();select(Math.round(telemetry.target)+(f?1:-1))}if(e.key==='Home')select(0);if(e.key==='End')select(N-1)});
+DATA.forEach((d,i)=>{const b=document.createElement('button');b.type='button';b.title=d.name;b.setAttribute('aria-label',`${i+1}：${d.name}`);b.onclick=()=>select(i);$('rail').appendChild(b)});
+function hexRgb(hex){return [1,3,5].map(i=>parseInt(hex.slice(i,i+2),16))}
+function cmyk(rgb){const a=rgb.map(v=>v/255),k=1-Math.max(...a);return k>=1?'0 0 0 100':[...a.map(v=>Math.round((1-v-k)/(1-k)*100)),Math.round(k*100)].join(' ')}
+function updateLabel(idx){if(idx===telemetry.active)return;telemetry.active=idx;const d=DATA[idx],a=hexRgb(d.bg);$('index').textContent=`${String(idx+1).padStart(2,'0')} / ${String(N).padStart(2,'0')}`;$('descriptor').textContent=d.en;$('hex').textContent=d.bg.toUpperCase();$('rgb').textContent=a.join(', ');$('cmyk').textContent=cmyk(a);$('mood').textContent=d.mood;$('swatch').style.background=d.c1;$('title').textContent=d.name;$('detail').textContent=d.text;$('sub').textContent=`A STUDY IN DEPTH — NO. ${String(idx+1).padStart(2,'0')}`;$('count').textContent=`${String(idx+1).padStart(2,'0')} — ${String(N).padStart(2,'0')}`;[...$('rail').children].forEach((el,j)=>{el.classList.toggle('active',j===idx);el.setAttribute('aria-current',j===idx?'true':'false')});$('previous').disabled=idx===0;$('next').disabled=idx===N-1;}
+updateLabel(0);
+
+// Real-image DOM fallback when the Three.js CDN or remote texture CORS is blocked.
+const backup=DATA.map(d=>{const img=document.createElement('img');img.src=ART_BASE+d.file;img.alt=d.name;img.decoding='async';$('image-backup').append(img);return img});
+function showBackup(){document.body.classList.add('backup');$('webgl').style.display='none'}
+function animateBackup(time=0){
+  const p=telemetry.current, speed=clamp(Math.max(Math.abs(telemetry.velocity)*.6,telemetry.impulse*.7),0,.62);
+  const mouseX=preferReduced?0:telemetry.px, mouseY=preferReduced?0:telemetry.py;
+  const drift=preferReduced?0:telemetry.drift;
+  backup.forEach((img,i)=>{
+    const diff=i-p, side=i%2?-1:1;
+    const depth=clamp(Math.abs(diff),0,1);
+    const arrival=clamp(diff,0,1), departure=clamp(-diff,0,1);
+    const opacity=diff>=0?1-ease(.16,1.05,diff):1-ease(.14,.83,-diff);
+    const alive=preferReduced?0:Math.sin(time*.66+i*1.42);
+    const dx=side*(arrival*7-departure*8)+mouseX*(2.0+speed*1.2);
+    const dy=alive*.45-arrival*4.5+departure*5.5+drift*2.4-mouseY*1.3;
+    const roll=preferReduced?0:side*(arrival*9-departure*10)+drift*2.5+alive*.4;
+    const yaw=preferReduced?0:side*(arrival*19-departure*19)+mouseX*(4+speed*3);
+    const pitch=preferReduced?0:-mouseY*(5+speed*2);
+    const breathe=preferReduced?1:1+Math.sin(time*.92+i*1.7)*.012+speed*.055;
+    const displayScale=clamp(1-depth*.47,.48,1)*breathe;
+    // DOM 降级时按旋转后外接矩形保留安全边距（不允许图片离开可视区）。
+    const baseW=img.offsetWidth,baseH=img.offsetHeight;
+    const radians=Math.abs(roll)*Math.PI/180;
+    const cos=Math.abs(Math.cos(radians)),sin=Math.abs(Math.sin(radians));
+    const projectedW=(cos*baseW+sin*baseH)*displayScale*1.10;
+    const projectedH=(sin*baseW+cos*baseH)*displayScale*1.10;
+    const safeScale=Math.min(1,innerWidth*.88/Math.max(projectedW,1),innerHeight*.82/Math.max(projectedH,1));
+    const finalScale=displayScale*safeScale;
+    const maxDx=Math.max(0,(innerWidth-projectedW*safeScale)*.5-innerWidth*.055);
+    const maxDy=Math.max(0,(innerHeight-projectedH*safeScale)*.5-innerHeight*.085);
+    const shiftX=clamp(dx*innerWidth/100,-maxDx,maxDx);
+    const shiftY=clamp(dy*innerHeight/100,-maxDy,maxDy);
+    img.style.opacity=String(clamp(opacity,0,1));
+    img.style.transform=`translate3d(calc(-50% + ${shiftX}px),calc(-50% + ${shiftY}px),0) rotateY(${yaw}deg) rotateX(${pitch}deg) rotateZ(${roll}deg) scale(${finalScale})`;
+  });
+}
+const vsBg=`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}`;
+const fsBg=`precision highp float; varying vec2 vUv;uniform vec3 uBase,uBloom1,uBloom2;uniform float uTime,uSpeed;uniform vec2 uMouse,uResolution;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}
+float cloud(vec2 st,vec2 ctr,vec2 spread){vec2 v=(st-ctr)/spread;return exp(-dot(v,v)*1.5);}
+void main(){vec2 uv=vUv;float ratio=uResolution.x/max(uResolution.y,1.0);vec2 st=vec2(uv.x*ratio,uv.y);vec2 p1=vec2(.22*ratio,.73)+vec2(sin(uTime*.12)*.06,cos(uTime*.09)*.05)+uMouse*.025;vec2 p2=vec2(.83*ratio,.29)+vec2(cos(uTime*.10)*.09,sin(uTime*.13)*.05)-uMouse*.023;float a=cloud(st,p1,vec2(ratio*.62,.82));float b=cloud(st,p2,vec2(ratio*.56,.71));vec3 col=mix(uBase,mix(uBloom1,uBase,.35),a*.48);col=mix(col,mix(uBloom2,uBase,.35),b*.43);col+=vec3(clamp(uSpeed,0.,1.)*.025);float n=hash(gl_FragCoord.xy+vec2(uTime*13.1,uTime*5.7))-.5;col+=n*.022;gl_FragColor=vec4(col,1.);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+}`;
+
+// A segmented image plane. Scroll energy bends the surface; stopping releases it.
+// Textures are real remote image files, not generated placeholder images.
+const artVertexShader = `
+  precision highp float;
+  varying vec2 vUv;
+  uniform float uTime, uFlex, uIndex;
+  void main(){
+    vUv = uv;
+    vec3 p = position;
+    float edge = pow(abs(uv.x - .5)*2., 1.75);
+    float envelope = sin(uv.x*3.14159265);
+    float wave = sin(uv.y*10.5 + uTime*2.15 + uIndex*1.3);
+    p.z += uFlex * (edge*.14 + wave*.035*envelope);
+    p.x += uFlex * .045 * sin(uv.y*7. + uTime*1.9 + uIndex) * envelope;
+    p.y += uFlex * .020 * sin(uv.x*8.4 - uTime*1.65) * envelope;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
+  }
+`;
+const artFragmentShader = `
+  precision highp float;
+  varying vec2 vUv;
+  uniform sampler2D uTexture;
+  uniform float uTime, uFlex, uOpacity, uIndex;
+  void main(){
+    float envelope = sin(vUv.x*3.14159265);
+    vec2 st = vUv;
+    st.x += .0045*uFlex*sin(vUv.y*13.+uTime*2.2+uIndex)*envelope;
+    st = clamp(st,vec2(.002),vec2(.998));
+    vec4 artwork = texture2D(uTexture, st);
+    float sheen = (1.0-vUv.x)*.025*uFlex;
+    gl_FragColor = vec4(artwork.rgb*(1.0+sheen), artwork.a*uOpacity);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }
+`;
+
+// Semi-implicit spring: force toward target, damping leaves short physical follow-through.
+function springPose(pose, name, target, dt, stiffness=MOTION.poseStiffness, damping=MOTION.poseDamping){
+  if(preferReduced){pose[name]=target;pose[name+'V']=0;return target;}
+  const key=name+'V';
+  const acceleration=(target-pose[name])*stiffness-pose[key]*damping;
+  pose[key]=clamp(pose[key]+acceleration*dt,-3.5,3.5);
+  pose[name]+=pose[key]*dt;
+  // 限制离开目标的过冲。主要运动来自目标轨迹，而非持续振荡。
+  if((target-pose[name])*(target-(pose[name]-pose[key]*dt))<0){
+    pose[name]=target;
+    pose[key]=0;
+  }
+  return pose[name];
+}
+
+// Screen-space safety fit for the actual perspective camera. Even during quick
+// scroll, every visible artwork quad stays inside the viewport safe area.
+// Camera position, rotation and the original artwork aspect ratio are all used.
+function constrainArtwork(camera,desiredX,desiredY,worldZ,rx,ry,rz,width,height,mobile){
+  const tanHalf=Math.tan(camera.fov*Math.PI/360);
+  const marginX=mobile?.87:.83, marginY=mobile?.78:.83;
+  const q=new THREE.Quaternion().setFromEuler(new THREE.Euler(rx,ry,rz));
+  const corners=[[-1,-1],[-1,1],[1,-1],[1,1]];
+  const baseDist=camera.position.z-worldZ;
+  const findBounds=factor=>{
+    let minX=-Infinity,maxX=Infinity,minY=-Infinity,maxY=Infinity;
+    for(const [a,b] of corners){
+      const v=new THREE.Vector3(a*width*factor*.5,b*height*factor*.5,0).applyQuaternion(q);
+      // Reserve enough depth for the GLSL mesh bend and the warped mesh edges.
+      const dz=baseDist-v.z-.18;
+      if(dz<=camera.near+.045)return null;
+      const spanX=dz*tanHalf*camera.aspect*marginX;
+      const spanY=dz*tanHalf*marginY;
+      minX=Math.max(minX,camera.position.x-spanX-v.x);
+      maxX=Math.min(maxX,camera.position.x+spanX-v.x);
+      minY=Math.max(minY,camera.position.y-spanY-v.y);
+      maxY=Math.min(maxY,camera.position.y+spanY-v.y);
+    }
+    return minX<=maxX&&minY<=maxY?{minX,maxX,minY,maxY}:null;
+  };
+  // Find the largest safe uniform scale; do not alter original image proportions.
+  let lo=0,hi=1,bounds=findBounds(1);
+  if(!bounds){
+    for(let i=0;i<14;i++){
+      const mid=(lo+hi)*.5;
+      const allowed=findBounds(mid);
+      if(allowed){lo=mid;bounds=allowed}else hi=mid;
+    }
+  }else lo=1;
+  if(!bounds)return {x:camera.position.x,y:camera.position.y,scale:0};
+  return {
+    x:clamp(desiredX,bounds.minX,bounds.maxX),
+    y:clamp(desiredY,bounds.minY,bounds.maxY),
+    scale:lo
+  };
+}
+
+class GalleryExperience{
+ constructor(){this.clock=new THREE.Clock();this.scene=new THREE.Scene();this.bgScene=new THREE.Scene();this.bgCamera=new THREE.Camera();this.camera=new THREE.PerspectiveCamera(43,1,.05,140);this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));this.renderer.autoClear=false;$('webgl').append(this.renderer.domElement);this.gap=MOTION.depthGap;this.startZ=MOTION.cameraDistance;this.layers=[];this.failed=0;this.elapsed=0;this.mood={background:new THREE.Color(DATA[0].bg),blob1:new THREE.Color(DATA[0].c1),blob2:new THREE.Color(DATA[0].c2)};this.createBackground();this.createArtworks();this.createWind();this.resize();addEventListener('resize',()=>this.resize());this.render=this.render.bind(this);requestAnimationFrame(this.render)}
+ createBackground(){this.bgUniforms={uTime:{value:0},uSpeed:{value:0},uMouse:{value:new THREE.Vector2()},uResolution:{value:new THREE.Vector2(innerWidth,innerHeight)},uBase:{value:this.mood.background},uBloom1:{value:this.mood.blob1},uBloom2:{value:this.mood.blob2}};this.bgScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({vertexShader:vsBg,fragmentShader:fsBg,uniforms:this.bgUniforms,depthTest:false,depthWrite:false})));}
+ createArtworks(){
+   const loader=new THREE.TextureLoader();
+   loader.setCrossOrigin('anonymous');
+   DATA.forEach((d,i)=>{
+     const uniforms={
+       uTexture:{value:null},uTime:{value:0},uFlex:{value:0},
+       uOpacity:{value:0},uIndex:{value:i}
+     };
+     const mat=new THREE.ShaderMaterial({
+       vertexShader:artVertexShader,fragmentShader:artFragmentShader,
+       uniforms,transparent:true,depthWrite:false,side:THREE.DoubleSide,
+     });
+     // The extra segments are necessary for a real 3D flexible surface.
+     const mesh=new THREE.Mesh(new THREE.PlaneGeometry(1,1,32,40),mat);
+     mesh.position.set(d.x,0,-i*this.gap);
+     mesh.visible=false;
+     mesh.renderOrder=N-i;
+     this.scene.add(mesh);
+     const pose={x:d.x,xV:0,y:0,yV:0,rx:0,rxV:0,ry:0,ryV:0,rz:0,rzV:0,scale:1,scaleV:0};
+     this.layers.push({mesh,mat,uniforms,ready:false,aspect:.62,pose});
+     loader.load(ART_BASE+d.file,tex=>{
+       tex.colorSpace=THREE.SRGBColorSpace;
+       tex.anisotropy=Math.min(this.renderer.capabilities.getMaxAnisotropy(),8);
+       const layer=this.layers[i];
+       layer.ready=true;
+       layer.uniforms.uTexture.value=tex;
+       layer.aspect=tex.image.width/tex.image.height;
+       layer.mesh.visible=true;
+     },undefined,error=>{
+       console.warn(`Gallery image ${i+1} unavailable`,error);
+       this.failed++;
+       if(this.failed===N){
+         notice('WebGL 图片纹理无法读取，已切换为有运动效果的网页图片。');
+         showBackup();
+       }
+     });
+   });
+ }
+ createWind(){this.windGroup=new THREE.Group();this.scene.add(this.windGroup);this.windPoints=64;this.windSides=7;this.windPositions=new Float32Array((this.windPoints+1)*(this.windSides+1)*3);const indexes=[];for(let j=0;j<this.windPoints;j++)for(let k=0;k<this.windSides;k++){const a=j*(this.windSides+1)+k,b=a+this.windSides+1;indexes.push(a,b,a+1,b,b+1,a+1)}this.windGeometry=new THREE.BufferGeometry();this.windGeometry.setAttribute('position',new THREE.BufferAttribute(this.windPositions,3).setUsage(THREE.DynamicDrawUsage));this.windGeometry.setIndex(indexes);const ribbonMat=new THREE.MeshBasicMaterial({color:'#f4efe2',transparent:true,opacity:.62,depthWrite:false,depthTest:true,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});this.windMesh=new THREE.Mesh(this.windGeometry,ribbonMat);this.windMesh.frustumCulled=false;this.windMesh.renderOrder=10;this.windGroup.add(this.windMesh);
+   // A soft secondary tube uses the same geometry but a separate shader material.
+   this.glowMat=new THREE.MeshBasicMaterial({color:'#e5bd91',transparent:true,opacity:.17,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});this.glowMesh=new THREE.Mesh(this.windGeometry,this.glowMat);this.glowMesh.frustumCulled=false;this.glowMesh.scale.set(1.003,1.003,1);this.glowMesh.renderOrder=9;this.windGroup.add(this.glowMesh);
+   const starCount=22;this.sparkPositions=new Float32Array(starCount*3);this.sparkGeometry=new THREE.BufferGeometry();this.sparkGeometry.setAttribute('position',new THREE.BufferAttribute(this.sparkPositions,3).setUsage(THREE.DynamicDrawUsage));this.sparkMaterial=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{uOpacity:{value:.75},uSize:{value:Math.min(devicePixelRatio||1,2)*8}},vertexShader:`uniform float uSize;void main(){vec4 p=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*p;gl_PointSize=clamp(uSize*4.0/max(-p.z,1.0),1.0,24.0);}`,fragmentShader:`precision mediump float;uniform float uOpacity;void main(){float d=length(gl_PointCoord-.5);float a=pow(1.-smoothstep(.02,.5,d),2.);gl_FragColor=vec4(1.,.90,.70,a*uOpacity);}`});this.sparks=new THREE.Points(this.sparkGeometry,this.sparkMaterial);this.sparks.frustumCulled=false;this.sparks.renderOrder=12;this.windGroup.add(this.sparks);}
+ resize(){this.renderer.setSize(innerWidth,innerHeight);this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();this.bgUniforms.uResolution.value.set(innerWidth,innerHeight)}
+ updateWind(time,p,speed){const zc=this.camera.position.z;const s=Math.sin,c=Math.cos;const points=[];const phase=p*.86;const amp=innerWidth<700?1.18:2.4;for(let i=0;i<16;i++){const t=i/15;const worldP=phase+t*.74;const x=s(worldP*Math.PI*2*1.18+.5)*amp+s(worldP*11.+time*.22)*.13;const y=c(worldP*Math.PI*2*1.45-.8)*.85+s(worldP*9.+time*.3)*.16;const z=zc-1.65-t*11.4;points.push(new THREE.Vector3(x,y,z))}const curve=new THREE.CatmullRomCurve3(points,false,'centripetal');const samples=curve.getSpacedPoints(this.windPoints);const pos=this.windPositions;const up=new THREE.Vector3(0,1,0),u=new THREE.Vector3(),v=new THREE.Vector3(),normal=new THREE.Vector3(),binormal=new THREE.Vector3(),tangent=new THREE.Vector3();for(let i=0;i<=this.windPoints;i++){const t=i/this.windPoints;tangent.copy(curve.getTangent(t)).normalize();normal.copy(up).cross(tangent).normalize();if(normal.lengthSq()<.0001)normal.set(1,0,0);binormal.copy(tangent).cross(normal).normalize();const radius=mix(.035,.0028,Math.pow(t,1.45))*(1+Math.min(speed,1)*.30);for(let k=0;k<=this.windSides;k++){const a=k/this.windSides*Math.PI*2;u.copy(normal).multiplyScalar(Math.cos(a)*radius);v.copy(binormal).multiplyScalar(Math.sin(a)*radius);const offset=(i*(this.windSides+1)+k)*3;pos[offset]=samples[i].x+u.x+v.x;pos[offset+1]=samples[i].y+u.y+v.y;pos[offset+2]=samples[i].z+u.z+v.z}}this.windGeometry.attributes.position.needsUpdate=true;this.windGeometry.computeVertexNormals();for(let i=0;i<this.sparkPositions.length/3;i++){const a=i*2.39996;const r=Math.sqrt((i+.5)/(this.sparkPositions.length/3))*(.20+speed*.12);this.sparkPositions[i*3]=samples[0].x+Math.cos(a+time*.7)*r;this.sparkPositions[i*3+1]=samples[0].y+Math.sin(a+time*.7)*r;this.sparkPositions[i*3+2]=samples[0].z+(i%5)*.055}this.sparkGeometry.attributes.position.needsUpdate=true;this.sparkMaterial.uniforms.uOpacity.value=.48+speed*.35;this.windMesh.material.opacity=.35+speed*.29;}
+ render(now){
+   requestAnimationFrame(this.render);
+   const dt=Math.min(this.clock.getDelta(),.034);
+   this.elapsed+=dt;
+   const t=telemetry;
+   const damping=preferReduced?1:1-Math.exp(-MOTION.travelEase*dt);
+   t.current=clamp(mix(t.current,t.target,damping),0,N-1);
+   const raw=(t.current-t.prev)/Math.max(dt,1/120);
+   t.velocity=mix(t.velocity,clamp(raw/2.15,-1,1),1-Math.exp(-5.2*dt));
+   if(Math.abs(t.velocity)<.001)t.velocity=0;
+   t.prev=t.current;
+   t.drift=mix(t.drift,0,1-Math.exp(-4.7*dt));
+   t.impulse=mix(t.impulse,0,1-Math.exp(-5.8*dt));
+   t.px=mix(t.px,t.mouseX,1-Math.exp(-3.0*dt));
+   t.py=mix(t.py,t.mouseY,1-Math.exp(-3.0*dt));
+   const p=t.current;
+   const speed=preferReduced?0:clamp(Math.max(Math.abs(t.velocity)*.6,t.impulse*.7),0,.62);
+   const drift=preferReduced?0:t.drift;
+   const mouseX=preferReduced?0:t.px;
+   const mouseY=preferReduced?0:t.py;
+   this.camera.position.set(mouseX*.095,mouseY*.07,this.startZ-this.gap*p);
+   this.camera.rotation.set(0,0,0);
+   const base=Math.min(N-1,Math.floor(p)),mixAmount=clamp(p-base,0,1);
+   const d0=DATA[base],d1=DATA[Math.min(N-1,base+1)];
+   this.mood.background.copy(new THREE.Color(d0.bg)).lerp(new THREE.Color(d1.bg),mixAmount);
+   this.mood.blob1.copy(new THREE.Color(d0.c1)).lerp(new THREE.Color(d1.c1),mixAmount);
+   this.mood.blob2.copy(new THREE.Color(d0.c2)).lerp(new THREE.Color(d1.c2),mixAmount);
+   this.bgUniforms.uTime.value=this.elapsed;
+   this.bgUniforms.uSpeed.value=speed;
+   this.bgUniforms.uMouse.value.set(mouseX,mouseY);
+   const mobile=innerWidth<700;
+
+   this.layers.forEach((layer,j)=>{
+     const delta=j-p;
+     const close=1-clamp(Math.abs(delta),0,1);
+     const side=(j%2===0?1:-1);
+     const incoming=clamp(delta,0,1),leaving=clamp(-delta,0,1);
+     const opacity=delta>=0?1-ease(.18,1.03,delta):1-ease(.13,.85,-delta);
+     const idle=preferReduced?0:Math.sin(this.elapsed*.72+j*1.5);
+     const entryX=side*(incoming*.95-leaving*.86);
+     const entryY=-incoming*.54+leaving*.76;
+     const targetX=DATA[j].x+entryX+mouseX*(MOTION.mouseParallax*(.4+.6*close)) +t.direction*speed*.055*close;
+     const targetY=entryY+drift*.32*(.35+.65*close)+mouseY*.15+idle*.042;
+     const targetRy=side*(incoming*MOTION.entryTilt-leaving*MOTION.exitTilt)+mouseX*(.09+.06*speed)*close+t.direction*speed*.04*close;
+     const targetRx=-mouseY*(.08+.04*speed)*close+drift*.025;
+     const targetRz=-side*incoming*.19+side*leaving*.23+drift*.025+idle*.012;
+     const targetScale=1+(speed*MOTION.velocityZoom+Math.sin(this.elapsed*.88+j*.9)*.018)*(close*.83+.17);
+     const pose=layer.pose;
+     const x=springPose(pose,'x',targetX,dt);
+     const y=springPose(pose,'y',targetY,dt);
+     const rx=springPose(pose,'rx',targetRx,dt);
+     const ry=springPose(pose,'ry',targetRy,dt);
+     const rz=springPose(pose,'rz',targetRz,dt);
+     const scale=springPose(pose,'scale',targetScale,dt,56,16.5);
+     const mesh=layer.mesh;
+     mesh.rotation.set(rx,ry,rz);
+     const h=(mobile?2.35:2.72)*scale;
+     const bounds=constrainArtwork(this.camera,x,y,-j*this.gap,rx,ry,rz,h*layer.aspect,h,mobile);
+     mesh.position.set(bounds.x,bounds.y,-j*this.gap);
+     mesh.scale.set(h*layer.aspect*bounds.scale,h*bounds.scale,1);
+     // Gentle, velocity-driven surface flex retained from the earlier version.
+     layer.uniforms.uTime.value=this.elapsed;
+     layer.uniforms.uFlex.value=preferReduced?0:clamp(.08+speed*.58+Math.abs(drift)*.25,0,.92);
+     layer.uniforms.uOpacity.value=clamp(opacity,0,1);
+     mesh.visible=layer.ready&&opacity>.004;
+   });
+   this.updateWind(this.elapsed,p,speed);
+   updateLabel(clamp(Math.round(p),0,N-1));
+   if(document.body.classList.contains('backup'))animateBackup(this.elapsed);
+   this.renderer.clear();
+   this.renderer.render(this.bgScene,this.bgCamera);
+   this.renderer.clearDepth();
+   this.renderer.render(this.scene,this.camera);
+ }
+
+}
+try{
+  for(const url of ['https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js','https://unpkg.com/three@0.180.0/build/three.module.js']){try{THREE=await import(url);break}catch(error){console.warn('Three CDN unavailable:',url,error)}}
+  if(!THREE)throw new Error('Three.js 未加载');experience=new GalleryExperience();
+ }catch(e){
+   console.error(e);
+   showBackup();
+   notice('当前浏览器无法使用 WebGL，正在显示具有视差的 2D 动效版本。');
+   let last=performance.now();
+   function fallbackLoop(now){
+     const dt=Math.min((now-last)/1000,.034);last=now;
+     telemetry.current=mix(telemetry.current,telemetry.target,preferReduced?1:1-Math.exp(-5.1*dt));
+     telemetry.current=clamp(telemetry.current,0,N-1);
+     const raw=(telemetry.current-telemetry.prev)/Math.max(dt,1/120);
+     telemetry.velocity=mix(telemetry.velocity,clamp(raw/2.15,-1,1),1-Math.exp(-5.2*dt));
+     telemetry.prev=telemetry.current;
+     telemetry.drift=mix(telemetry.drift,0,1-Math.exp(-4.7*dt));
+     telemetry.impulse=mix(telemetry.impulse,0,1-Math.exp(-5.8*dt));
+     telemetry.px=mix(telemetry.px,telemetry.mouseX,1-Math.exp(-3*dt));
+     telemetry.py=mix(telemetry.py,telemetry.mouseY,1-Math.exp(-3*dt));
+     updateLabel(clamp(Math.round(telemetry.current),0,N-1));
+     animateBackup(now/1000);
+     requestAnimationFrame(fallbackLoop);
+   }
+   requestAnimationFrame(fallbackLoop);
+ }
+</script>
+</body>
+</html>

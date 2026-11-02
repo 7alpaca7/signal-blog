@@ -14,6 +14,8 @@ export function writeStaticEntries(outputDirectory, slugs) {
     'resources/signal-source',
     'resources/unwoven-source',
     'experiments/unwoven',
+    'resources/naiwa-source',
+    'experiments/naiwa',
     'articles',
     ...slugs.map((slug) => `articles/${slug}`),
   ]) {

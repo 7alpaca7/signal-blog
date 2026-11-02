@@ -18,11 +18,9 @@ test('作品记录直接打开展示，分类与源码下载形成闭环', async
       body: '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#d9ed7a"/></svg>',
     }),
   );
-  await page.goto('/');
-  await page
-    .getByRole('region', { name: '最近的记录' })
-    .getByRole('link', { name: /奶蛙 · UNWOVEN/ })
-    .click();
+  // 历史作品从归档访问，避免新文章发布后移出首页最近三条而误报。
+  await page.goto('/articles?category=创意实验');
+  await page.getByRole('link', { name: /奶蛙 · UNWOVEN/ }).click();
   await expect(page).toHaveURL(/\/experiments\/unwoven$/);
   const iframe = page.locator('iframe');
   await expect(iframe).toHaveAttribute('sandbox', 'allow-scripts');

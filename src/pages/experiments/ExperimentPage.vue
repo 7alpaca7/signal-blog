@@ -47,7 +47,7 @@ async function fullscreen() {
       ref="frame"
       :src="resource.embedUrl"
       :style="{ '--experiment-height': `${contentHeight}px` }"
-      title="奶蛙 UNWOVEN 交互作品"
+      :title="`${resource.name} · 在线体验`"
       sandbox="allow-scripts"
       allow="fullscreen"
       allowfullscreen
@@ -55,7 +55,7 @@ async function fullscreen() {
       @load="loaded = true"
     />
     <p class="experiment-note">
-      原作品独立运行 · 拖拽影像体验交互 · 图片来自外部素材地址，加载状态以作品内提示为准。
+      原作品独立运行 · 按作品内提示操作 · 图片来自外部素材地址，加载状态以作品内提示为准。
     </p>
   </section>
   <section v-else class="page">
